@@ -10,3 +10,10 @@ export const getBigNumber = (amount: number, decimals = 18) => {
 };
 
 export const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
+
+export const preventUnderflow = (amount: number, decimals: number): string => {
+  if (amount.toString().length > decimals) {
+    return amount.toFixed(decimals).toString();
+  }
+  return amount.toString();
+};

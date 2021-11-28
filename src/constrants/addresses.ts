@@ -1,14 +1,7 @@
-export const polyDAI = "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063";
 export const polyMatic = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
 export const polyAAVEAddressProvider =
   "0xd05e3E715d945B59290df0ae8eF85c1BdB684744";
-export const DAI_WHALE = "0x0298B2eCdef68BC139B098461217a5B3161B69C8";
-export const WMATIC_WHALE = "0xFffbCD322cEace527C8ec6Da8de2461C6D9d4e6e";
-export const polyWETH = "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619";
 export const dex1inch = "0x11111112542D85B3EF69AE05771c2dCCff4fAa26";
-export const polyUSDC = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174";
-export const polyUSDT = "0xc2132D05D31c914a87C6611C10748AEb04B58e8F";
-export const polyWMATIC = "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270";
 
 type ERC20Map = { [erc20: string]: string };
 
@@ -32,9 +25,6 @@ export const dodoV2Pool: PoolMap = {
   USDC_USDT: "0x56FF5E27d40FBF746ADaa3DA820ADb2056F225E7",
 };
 
-export const quickRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff";
-export const sushiRouter = "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506";
-
 type RouterMap = { [protocol: string]: string };
 
 export const uniswapRouter: RouterMap = {
@@ -45,6 +35,3 @@ export const uniswapRouter: RouterMap = {
   POLYGON_POLYCAT: "0x94930a328162957FF1dd48900aF67B5439336cBD",
   POLYGON_WAULTSWAP: "0x3a1D87f206D12415f5b0A33E786967680AAb4f6d",
 };
-
-export const prodV1 = "0x06C6Ae289a40Cb33C5A01063281E9450902a0c8e";
-export const prodV2 = "0x172E18892394AdD84Ef2E4b244282dD4952c1321";
