@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch TypeScript",
+      "type": "node",
+      "skipFiles": ["<node_internals>/**"],
+      "request": "launch",
+      "program": "${workspaceFolder}/dist/index.js",
+      "outFiles": ["${workspaceFolder}/**/*.js"]
+    }
+  ]
+}

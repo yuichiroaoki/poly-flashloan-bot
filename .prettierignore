@@ -1,0 +1,19 @@
+# Ignore artifacts:
+build/
+coverage/
+.yarn/
+artifacts/
+cache/
+dist/
+lib/
+node_modules/
+
+# files
+*.env
+*.log
+*.tsbuildinfo
+.pnp.*
+coverage.json
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
