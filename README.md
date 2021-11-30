@@ -38,6 +38,17 @@ Run the following command.
 yarn install
 ```
 
+### 3. Build
+```bash
+yarn build
+```
+
+### 4. Run Bot
+```bash
+yarn start
+```
+
+
 ## Configuration
 Edit [src/config.ts](https://github.com/yuichiroaoki/poly-flashloan-bot/blob/main/src/config.ts)
 
