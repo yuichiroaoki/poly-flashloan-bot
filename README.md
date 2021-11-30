@@ -37,3 +37,11 @@ Run the following command.
 ```bash
 yarn install
 ```
+
+## Configuration
+Edit [src/config.ts](https://github.com/yuichiroaoki/poly-flashloan-bot/blob/main/src/config.ts)
+
+## Docker
+```bash
+source startup.sh
+```
