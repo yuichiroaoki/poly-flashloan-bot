@@ -5,6 +5,14 @@ import axios from "axios";
 import { chainId, protocols } from "./config";
 import { IRoute } from "./interfaces/main";
 
+/**
+ * Will get the 1inch API call URL for a trade
+ * @param chainId chain id of the network
+ * @param fromTokenAddress token address of the token you want to sell
+ * @param toTokenAddress token address of the token you want to buy
+ * @param amount amount of the token you want to sell
+ * @returns call URL for 1inch API
+ */
 function get1inchQuoteCallUrl(
   chainId: number,
   fromTokenAddress: string,
@@ -62,6 +70,13 @@ export async function get1inchQuote(
   return parseFloat(rate);
 }
 
+/**
+ * Will check if there's an arbitrage opportunity using the 1inch API
+ * @param fromTokenAddress token address you're swapping from
+ * @param toTokenAddress token address you're swapping to
+ * @param fromTokenDecimal number of decimal places of the token you're swapping from
+ * @returns
+ */
 export async function checkArbitrage(
   fromTokenAddress: string,
   toTokenAddress: string,
