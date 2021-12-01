@@ -52,6 +52,11 @@ yarn start
 ## Configuration
 Edit [src/config.ts](https://github.com/yuichiroaoki/poly-flashloan-bot/blob/main/src/config.ts)
 
+## ABI
+This flashloan bot uses an ABI from [this flashloan smart contract](https://github.com/yuichiroaoki/poly-flash/blob/main/contracts/Flashloan.sol). 
+
+If you update the flashloan smart contract, you need to replace [this ABI](https://github.com/yuichiroaoki/poly-flashloan-bot/blob/main/src/abis/Flashloan.json) to the new one.
+
 ## Docker
 ```bash
 source startup.sh
