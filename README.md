@@ -2,6 +2,12 @@
 
 An open source flashloan bot on polygon network
 
+## Prerequisites
+This flashloan bot works with [the smart contract](https://github.com/yuichiroaoki/poly-flash/blob/main/contracts/Flashloan.sol).
+
+You need to deploy your own smart contract on polygon mainnet if you want to run this bot.
+
+
 ## Installation
 
 ### 1. Install [Node.js](https://nodejs.org/en/) & [yarn](https://classic.yarnpkg.com/en/docs/install/#windows-stable), if you haven't already.
@@ -38,12 +44,22 @@ Run the following command.
 yarn install
 ```
 
-### 3. Build
+### 3. Add Your Deployed Smart Contract Address
+Replace ```<your-deployed-contract-address>``` to your deployed smart contract address. 
+
+[src/config.ts](https://github.com/yuichiroaoki/poly-flashloan-bot/blob/main/src/config.ts#L30)
+
+```typescript
+export const flashloanAddress = "<your-deployed-contract-address>";
+```
+Note: If you update the flashloan smart contract, you need to replace [this ABI](https://github.com/yuichiroaoki/poly-flashloan-bot/blob/main/src/abis/Flashloan.json) to the new one.
+
+### 4.Build
 ```bash
 yarn build
 ```
 
-### 4. Run Bot
+### 5. Run Bot
 ```bash
 yarn start
 ```
