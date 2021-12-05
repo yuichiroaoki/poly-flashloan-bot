@@ -135,7 +135,7 @@ const sendRequest = async (url: string) => {
       if (error.response) {
         console.log(error.response.status);
       }
-      console.log("Error", error.message);
+      console.log("Error: Failed to fetch data from 1inch");
       return null;
     });
 
