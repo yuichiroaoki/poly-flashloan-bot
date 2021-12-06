@@ -45,12 +45,12 @@ yarn install
 ```
 
 
-### 4.Build
+### 3.Build
 ```bash
 yarn build
 ```
 
-### 5. Run Bot
+### 4. Run Bot
 ```bash
 yarn start
 ```
