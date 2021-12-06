@@ -44,15 +44,6 @@ Run the following command.
 yarn install
 ```
 
-### 3. Add Your Deployed Smart Contract Address
-Replace ```<your-deployed-contract-address>``` to your deployed smart contract address. 
-
-[src/config.ts](https://github.com/yuichiroaoki/poly-flashloan-bot/blob/main/src/config.ts#L30)
-
-```typescript
-export const flashloanAddress = "<your-deployed-contract-address>";
-```
-Note: If you update the flashloan smart contract, you need to replace [this ABI](https://github.com/yuichiroaoki/poly-flashloan-bot/blob/main/src/abis/Flashloan.json) to the new one.
 
 ### 4.Build
 ```bash
@@ -67,6 +58,15 @@ yarn start
 
 ## Configuration
 Edit [src/config.ts](https://github.com/yuichiroaoki/poly-flashloan-bot/blob/main/src/config.ts)
+
+If you have deployed your own contract, replace ```flashloan address``` to your deployed smart contract address. 
+
+[flashloan address](https://github.com/yuichiroaoki/poly-flashloan-bot/blob/2778e4b5e87c261f11db56a647ac5eadf28e26c2/src/config.ts#L37)
+
+```typescript
+export const flashloanAddress = "<your-deployed-contract-address>";
+```
+Note: If you update the flashloan smart contract, you need to replace [this ABI](https://github.com/yuichiroaoki/poly-flashloan-bot/blob/main/src/abis/Flashloan.json) to the new one.
 
 ## ABI
 This flashloan bot uses an ABI from [this flashloan smart contract](https://github.com/yuichiroaoki/poly-flash/blob/main/contracts/Flashloan.sol). 
