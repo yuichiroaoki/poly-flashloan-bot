@@ -13,6 +13,16 @@ export const erc20Address: ERC20Map = {
   WMATIC: "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270",
 };
 
+type ERC20DecimalsMap = { [erc20: string]: number };
+
+export const erc20Decimals: ERC20DecimalsMap = {
+  DAI: 18,
+  WETH: 18,
+  USDC: 6,
+  USDT: 6,
+  WMATIC: 18,
+};
+
 export enum ERC20Symbol {
   DAI = "DAI",
   WETH = "WETH",

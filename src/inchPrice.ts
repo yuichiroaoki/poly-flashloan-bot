@@ -1,10 +1,11 @@
 import { config as dotEnvConfig } from "dotenv";
 dotEnvConfig();
+import chalk = require("chalk");
 import { BigNumber, ethers } from "ethers";
 import axios from "axios";
 import { chainId, protocols } from "./config";
 import { IRoute } from "./interfaces/main";
-import { erc20Address } from "./constrants/addresses";
+import { erc20Address, erc20Decimals } from "./constrants/addresses";
 
 /**
  * Will get the 1inch API call URL for a trade
@@ -81,10 +82,17 @@ export async function get1inchQuote(
 export async function checkArbitrage(
   fromToken: string,
   toToken: string,
-  fromTokenDecimal: number = 18
+  p: any
 ): Promise<[boolean, IRoute[] | null, IRoute[] | null]> {
-  const initialAmount = "1000";
+  const startTime = Date.now();
+
+  const fromTokenDecimal = erc20Decimals[fromToken];
+
+  const initialAmount = "1000.00";
   const amount = ethers.utils.parseUnits(initialAmount, fromTokenDecimal);
+  const initialAmount2 = "1010.00";
+  const amount2 = ethers.utils.parseUnits(initialAmount2, fromTokenDecimal);
+
   const firstCallURL = get1inchQuoteCallUrl(
     chainId,
     erc20Address[fromToken],
@@ -93,7 +101,34 @@ export async function checkArbitrage(
   );
 
   const resultData1 = await sendRequest(firstCallURL);
-  if (!resultData1) {
+  if (!!resultData1.isAxiosError) {
+    const e = resultData1;
+
+    p.addRow(
+      {
+        fromToken: fromToken,
+        toToken: toToken,
+
+        fromAmount: Number(ethers.utils.formatUnits(amount, fromTokenDecimal))
+          .toFixed(2)
+          .padStart(7),
+
+        error:
+          e.response.status +
+          ": " +
+          e.response.statusText +
+          " (" +
+          e.response.data.error +
+          ")",
+
+        time: (((Date.now() - startTime) / 100).toFixed(1) + "s").padStart(5),
+        timestamp: new Date().toISOString(),
+      },
+      {
+        color: "red",
+      }
+    );
+
     return [false, null, null];
   }
 
@@ -107,24 +142,95 @@ export async function checkArbitrage(
   );
 
   const resultData2 = await sendRequest(secondCallURL);
-  if (!resultData2) {
+  if (!!resultData2.isAxiosError) {
+    const e = resultData2;
+
+    p.addRow(
+      {
+        fromToken: resultData1.fromToken.symbol,
+        toToken: toToken,
+
+        fromAmount: Number(
+          ethers.utils.formatUnits(
+            resultData1.fromTokenAmount,
+            resultData1.fromToken.decimals
+          )
+        )
+          .toFixed(2)
+          .padStart(7),
+
+        error:
+          e.response.status +
+          ": " +
+          e.response.statusText +
+          " (" +
+          e.response.data.error +
+          ")",
+
+        time: (((Date.now() - startTime) / 100).toFixed(1) + "s").padStart(5),
+        timestamp: new Date().toISOString(),
+      },
+      {
+        color: "red",
+      }
+    );
+
     return [false, null, null];
   }
   const secondRoute = getProtocols(resultData2.protocols);
 
-  const isProfitable = amount.lt(
+  const isProfitable = amount2.lt(
     ethers.BigNumber.from(resultData2.toTokenAmount)
   );
-  isProfitable && console.log({ firstRoute, secondRoute });
+  // isProfitable && console.log({ firstRoute, secondRoute });
 
-  isProfitable &&
-    console.log(
-      initialAmount,
-      ethers.utils.formatUnits(resultData2.toTokenAmount, 18).slice(0, 9)
-    );
+  const fromTokenAmount = Number(
+    ethers.utils.formatUnits(
+      resultData1.fromTokenAmount,
+      resultData1.fromToken.decimals
+    )
+  );
+  const toTokenAmount = Number(
+    ethers.utils.formatUnits(
+      resultData2.toTokenAmount,
+      resultData2.toToken.decimals
+    )
+  );
+  const diff = Number(toTokenAmount) - Number(fromTokenAmount);
+
+  p.addRow(
+    {
+      fromToken: resultData1.fromToken.symbol,
+      toToken: resultData1.toToken.symbol,
+
+      fromAmount: fromTokenAmount.toFixed(2).padStart(7),
+      toAmount: toTokenAmount.toFixed(2).padStart(7),
+      difference: chalkDiff(diff).padStart(7),
+
+      time: (((Date.now() - startTime) / 100).toFixed(1) + "s").padStart(5),
+      timestamp: new Date().toISOString(),
+    },
+    {
+      color: isProfitable ?? "green",
+    }
+  );
+
+  // isProfitable &&
+  //   console.warn(
+  //     initialAmount,
+  //     ethers.utils.formatUnits(resultData2.toTokenAmount, resultData2.toToken.decimals)
+  //   );
 
   return [isProfitable, firstRoute, secondRoute];
 }
+
+const chalkDiff = (diff: number) => {
+  if (diff < 0) {
+    return chalk.red(diff.toFixed(2));
+  } else {
+    return chalk.green(diff.toFixed(2));
+  }
+};
 
 const sendRequest = async (url: string) => {
   let response: any = await axios
@@ -132,9 +238,8 @@ const sendRequest = async (url: string) => {
     .then((result) => {
       return result.data;
     })
-    .catch(() => {
-      console.log("Error: Failed to fetch data from 1inch");
-      return null;
+    .catch((error) => {
+      return error;
     });
 
   return response;

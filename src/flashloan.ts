@@ -1,6 +1,6 @@
 import { BigNumber, ethers } from "ethers";
 import * as FlashloanJson from "./abis/Flashloan.json";
-import { flashloanAddress } from "./config";
+import { flashloanAddress, gasLimit } from "./config";
 import {
   dodoV2Pool,
   erc20Address,
@@ -59,13 +59,13 @@ export const flashloan = async (
     secondRoutes: changeToFlashloanRoute(tokenOut, secondRoutes),
   };
 
-  console.log("Calling flashloan", `${tokenIn} <-> ${tokenOut}`);
-  const tx = await Flashloan.connect(signer).dodoFlashLoan(params, {
-    gasLimit: 15000000,
+  // console.log("Calling flashloan", `${tokenIn} <-> ${tokenOut}`);
+  return Flashloan.connect(signer).dodoFlashLoan(params, {
+    gasLimit: gasLimit,
   });
-  const polyscanURL = "https://polygonscan.com/tx/" + tx.hash;
-  console.log("Flashloan tx: ", tx.hash);
-  console.log("Polyscan URL: ", polyscanURL);
+  // const polyscanURL = "https://polygonscan.com/tx/" + tx.hash;
+  // console.log("Flashloan tx: ", tx.hash);
+  // console.log("Polyscan URL: ", polyscanURL);
 };
 
 /**
