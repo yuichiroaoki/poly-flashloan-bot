@@ -1,14 +1,8 @@
 import { ethers } from "ethers";
-import { erc20Address } from "./constrants/addresses";
-
-//  fixed thresholds for buying and selling
-export const threshold = 0.03;
+import { ERC20Symbol } from "./constrants/addresses";
 
 // interval of price check (ms)
 export const interval = 10 * 1000;
-
-// amount of DAI token trading per a single buy/sell action
-export const baseTradingAmount = ethers.utils.parseUnits("3.0", 18);
 
 // polygon chain id
 export const chainId = 137;
@@ -20,12 +14,20 @@ export const provider = new ethers.providers.JsonRpcProvider(
 export const explorerURL = "https://polygonscan.com";
 
 // Token pair the bot trading
-export const baseToken = erc20Address.USDC;
+export const baseTokens = [
+  ERC20Symbol.DAI,
+  ERC20Symbol.WMATIC,
+  ERC20Symbol.USDT,
+  ERC20Symbol.USDC,
+  ERC20Symbol.WETH,
+];
+
 export const tradingTokens = [
-  erc20Address.DAI,
-  erc20Address.WMATIC,
-  erc20Address.USDT,
-  erc20Address.WETH,
+  ERC20Symbol.DAI,
+  ERC20Symbol.WMATIC,
+  ERC20Symbol.USDT,
+  ERC20Symbol.USDC,
+  ERC20Symbol.WETH,
 ];
 
 /**

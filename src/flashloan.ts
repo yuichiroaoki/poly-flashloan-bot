@@ -1,7 +1,11 @@
 import { BigNumber, ethers } from "ethers";
 import * as FlashloanJson from "./abis/Flashloan.json";
 import { flashloanAddress } from "./config";
-import { dodoV2Pool, uniswapRouter } from "./constrants/addresses";
+import {
+  dodoV2Pool,
+  erc20Address,
+  uniswapRouter,
+} from "./constrants/addresses";
 import { IRoute } from "./interfaces/main";
 import { getBigNumber } from "./utils/index";
 
@@ -21,6 +25,25 @@ const Flashloan = new ethers.Contract(
   maticProvider
 );
 
+type testedPoolMap = { [erc20Address: string]: string[] };
+
+const testedPools: testedPoolMap = {
+  DAI: [dodoV2Pool.USDC_DAI],
+  WETH: [dodoV2Pool.WETH_USDC],
+  USDC: [dodoV2Pool.WETH_USDC, dodoV2Pool.USDC_DAI],
+  USDT: [dodoV2Pool.WMATIC_USDT],
+  WMATIC: [dodoV2Pool.WMATIC_USDT],
+};
+
+/**
+ * borrow token from one of the tested dodo pools
+ * @param borrowingToken token to borrow from dodo pool
+ * @returns
+ */
+const getLendingPool = (borrowingToken: string) => {
+  return testedPools[borrowingToken][0];
+};
+
 export const flashloan = async (
   tokenIn: string,
   tokenOut: string,
@@ -30,13 +53,13 @@ export const flashloan = async (
   let params: IParams;
 
   params = {
-    flashLoanPool: dodoV2Pool.WETH_USDC,
+    flashLoanPool: getLendingPool(tokenIn),
     loanAmount: getBigNumber(10000, 6),
     firstRoutes: changeToFlashloanRoute(tokenIn, firstRoutes),
     secondRoutes: changeToFlashloanRoute(tokenOut, secondRoutes),
   };
 
-  console.log("Calling flashloan", tokenOut);
+  console.log("Calling flashloan", `${tokenIn} <-> ${tokenOut}`);
   const tx = await Flashloan.connect(signer).dodoFlashLoan(params, {
     gasLimit: 15000000,
   });
@@ -45,12 +68,18 @@ export const flashloan = async (
   console.log("Polyscan URL: ", polyscanURL);
 };
 
+/**
+ * change 1inch route to flashloan route
+ * @param tokenIn token to borrow from dodo pool
+ * @param routes
+ * @returns
+ */
 const changeToFlashloanRoute = (
   tokenIn: string,
   routes: IRoute[]
 ): IFlashloanRoute[] => {
   let firstRoute: IFlashloanRoute = {
-    path: [tokenIn],
+    path: [erc20Address[tokenIn]],
     router: uniswapRouter[routes[0].name],
   };
   let flashloanRoutes: IFlashloanRoute[] = [firstRoute];

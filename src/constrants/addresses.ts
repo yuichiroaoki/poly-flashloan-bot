@@ -13,6 +13,14 @@ export const erc20Address: ERC20Map = {
   WMATIC: "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270",
 };
 
+export enum ERC20Symbol {
+  DAI = "DAI",
+  WETH = "WETH",
+  USDC = "USDC",
+  USDT = "USDT",
+  WMATIC = "WMATIC",
+}
+
 type PoolMap = { [pair: string]: string };
 
 export const dodoV2Pool: PoolMap = {

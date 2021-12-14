@@ -4,6 +4,7 @@ import { BigNumber, ethers } from "ethers";
 import axios from "axios";
 import { chainId, protocols } from "./config";
 import { IRoute } from "./interfaces/main";
+import { erc20Address } from "./constrants/addresses";
 
 /**
  * Will get the 1inch API call URL for a trade
@@ -72,22 +73,22 @@ export async function get1inchQuote(
 
 /**
  * Will check if there's an arbitrage opportunity using the 1inch API
- * @param fromTokenAddress token address you're swapping from
- * @param toTokenAddress token address you're swapping to
+ * @param fromToken token symbol you're swapping from
+ * @param toToken token symbol you're swapping to
  * @param fromTokenDecimal number of decimal places of the token you're swapping from
  * @returns
  */
 export async function checkArbitrage(
-  fromTokenAddress: string,
-  toTokenAddress: string,
+  fromToken: string,
+  toToken: string,
   fromTokenDecimal: number = 18
 ): Promise<[boolean, IRoute[] | null, IRoute[] | null]> {
   const initialAmount = "1000";
   const amount = ethers.utils.parseUnits(initialAmount, fromTokenDecimal);
   const firstCallURL = get1inchQuoteCallUrl(
     chainId,
-    fromTokenAddress,
-    toTokenAddress,
+    erc20Address[fromToken],
+    erc20Address[toToken],
     amount
   );
 
@@ -100,8 +101,8 @@ export async function checkArbitrage(
   const returnAmount = resultData1.toTokenAmount;
   const secondCallURL = get1inchQuoteCallUrl(
     chainId,
-    toTokenAddress,
-    fromTokenAddress,
+    erc20Address[toToken],
+    erc20Address[fromToken],
     returnAmount
   );
 
