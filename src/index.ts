@@ -1,24 +1,29 @@
 import { config as dotEnvConfig } from "dotenv";
 dotEnvConfig();
 import { checkArbitrage } from "./inchPrice";
-import { baseToken, interval, tradingTokens } from "./config";
+import { baseTokens, interval, tradingTokens } from "./config";
 import { flashloan } from "./flashloan";
 
 export const main = async () => {
   setInterval(async () => {
-    for (const tradingToken of tradingTokens) {
-      const [isProfitable, firstRoutes, secondRoutes] = await checkArbitrage(
-        baseToken,
-        tradingToken,
-        18
-      );
+    for (const baseToken of baseTokens) {
+      for (const tradingToken of tradingTokens) {
+        // prevent swapping the same token
+        if (baseToken === tradingToken) continue;
 
-      if (isProfitable) {
-        console.log("Arbitrage detected!", tradingToken);
-        if (firstRoutes && secondRoutes) {
-          await flashloan(baseToken, tradingToken, firstRoutes, secondRoutes);
-        } else {
-          console.log("No routes found");
+        const [isProfitable, firstRoutes, secondRoutes] = await checkArbitrage(
+          baseToken,
+          tradingToken,
+          18
+        );
+
+        if (isProfitable) {
+          console.log("Arbitrage detected!");
+          if (firstRoutes && secondRoutes) {
+            await flashloan(baseToken, tradingToken, firstRoutes, secondRoutes);
+          } else {
+            console.log("No routes found");
+          }
         }
       }
     }
