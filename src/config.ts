@@ -1,11 +1,15 @@
 import { ethers } from "ethers";
-import { ERC20Symbol } from "./constrants/addresses";
+import { ERC20Token } from "./constrants/addresses";
 
 // interval of price check (ms)
 export const interval = 10 * 1000;
 
-// polygon chain id
-export const chainId = 137;
+export const initialAmount = 1000;
+export const diffAmount = 10; // Not enough amount to return loan
+
+//export const chainId = 1;// Ethereum
+//export const chainId = 56;// Binance Smart Chain
+export const chainId = 137; // Polygon
 
 export const provider = new ethers.providers.JsonRpcProvider(
   process.env.ALCHEMY_POLYGON_RPC_URL
@@ -15,19 +19,19 @@ export const explorerURL = "https://polygonscan.com";
 
 // Token pair the bot trading
 export const baseTokens = [
-  ERC20Symbol.DAI,
-  ERC20Symbol.WMATIC,
-  ERC20Symbol.USDT,
-  ERC20Symbol.USDC,
-  ERC20Symbol.WETH,
+  ERC20Token.DAI,
+  ERC20Token.ETH,
+  ERC20Token.USDC,
+  ERC20Token.USDT,
+  ERC20Token.WMATIC,
 ];
 
 export const tradingTokens = [
-  ERC20Symbol.DAI,
-  ERC20Symbol.WMATIC,
-  ERC20Symbol.USDT,
-  ERC20Symbol.USDC,
-  ERC20Symbol.WETH,
+  ERC20Token.DAI,
+  ERC20Token.ETH,
+  ERC20Token.USDC,
+  ERC20Token.USDT,
+  ERC20Token.WMATIC,
 ];
 
 /**
@@ -36,7 +40,7 @@ export const tradingTokens = [
  * if you have deployed your own contract, you can use it instead of the default one
  */
 export const flashloanAddress: string =
-  "0x0e0Ec2C716b5Ba2512Af9d3790D8804Da42DDD58";
+  "0xe43A0003955f8745c77A2A987Afa316D6B9828B3";
 
 // protocols the bot will use
 export const protocols =

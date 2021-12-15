@@ -1,11 +1,7 @@
 import { BigNumber, ethers } from "ethers";
 import * as FlashloanJson from "./abis/Flashloan.json";
 import { flashloanAddress, gasLimit } from "./config";
-import {
-  dodoV2Pool,
-  erc20Address,
-  uniswapRouter,
-} from "./constrants/addresses";
+import { IToken, dodoV2Pool, uniswapRouter } from "./constrants/addresses";
 import { IRoute } from "./interfaces/main";
 import { getBigNumber } from "./utils/index";
 
@@ -40,13 +36,13 @@ const testedPools: testedPoolMap = {
  * @param borrowingToken token to borrow from dodo pool
  * @returns
  */
-const getLendingPool = (borrowingToken: string) => {
-  return testedPools[borrowingToken][0];
+const getLendingPool = (borrowingToken: IToken) => {
+  return testedPools[borrowingToken.symbol][0];
 };
 
 export const flashloan = async (
-  tokenIn: string,
-  tokenOut: string,
+  tokenIn: IToken,
+  tokenOut: IToken,
   firstRoutes: IRoute[],
   secondRoutes: IRoute[]
 ) => {
@@ -75,11 +71,11 @@ export const flashloan = async (
  * @returns
  */
 const changeToFlashloanRoute = (
-  tokenIn: string,
+  tokenIn: IToken,
   routes: IRoute[]
 ): IFlashloanRoute[] => {
   let firstRoute: IFlashloanRoute = {
-    path: [erc20Address[tokenIn]],
+    path: [tokenIn.address],
     router: uniswapRouter[routes[0].name],
   };
   let flashloanRoutes: IFlashloanRoute[] = [firstRoute];

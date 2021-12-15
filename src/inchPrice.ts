@@ -3,9 +3,9 @@ dotEnvConfig();
 import chalk = require("chalk");
 import { BigNumber, ethers } from "ethers";
 import axios from "axios";
-import { chainId, protocols } from "./config";
+import { chainId, protocols, initialAmount, diffAmount } from "./config";
 import { IRoute } from "./interfaces/main";
-import { erc20Address, erc20Decimals } from "./constrants/addresses";
+import { IToken } from "./constrants/addresses";
 
 /**
  * Will get the 1inch API call URL for a trade
@@ -22,7 +22,7 @@ function get1inchQuoteCallUrl(
   amount: BigNumber
 ): string {
   const callURL =
-    "https://api.1inch.exchange/v3.0/" +
+    "https://api.1inch.exchange/v4.0/" +
     chainId +
     "/quote?" +
     "fromTokenAddress=" +
@@ -51,14 +51,20 @@ export async function get1inchQuote(
   amount: string = ethers.utils.parseUnits("1.0", 18).toString()
 ): Promise<number | null> {
   let callURL =
-    "https://api.1inch.exchange/v3.0/" +
+    "https://api.1inch.exchange/v4.0/" +
     chainId +
-    "/quote?" +
+    "/quote" +
+    "?" +
+    // contract address of a token to sell
     "fromTokenAddress=" +
     fromTokenAddress +
-    "&toTokenAddress=" +
+    "&" +
+    // contract address of a token to buy
+    "toTokenAddress=" +
     toTokenAddress +
-    "&amount=" +
+    "&" +
+    // amount of a token to sell
+    "amount=" +
     amount;
 
   const result = await sendRequest(callURL);
@@ -80,23 +86,27 @@ export async function get1inchQuote(
  * @returns
  */
 export async function checkArbitrage(
-  fromToken: string,
-  toToken: string,
+  fromToken: IToken,
+  toToken: IToken,
   p: any
 ): Promise<[boolean, IRoute[] | null, IRoute[] | null]> {
   const startTime = Date.now();
 
-  const fromTokenDecimal = erc20Decimals[fromToken];
+  const fromTokenDecimal = fromToken.decimals;
 
-  const initialAmount = "1000.00";
-  const amount = ethers.utils.parseUnits(initialAmount, fromTokenDecimal);
-  const initialAmount2 = "1010.00";
-  const amount2 = ethers.utils.parseUnits(initialAmount2, fromTokenDecimal);
+  const amount = ethers.utils.parseUnits(
+    initialAmount.toString(),
+    fromTokenDecimal
+  );
+  const amountDiff = ethers.utils.parseUnits(
+    (initialAmount + diffAmount).toString(),
+    fromTokenDecimal
+  );
 
   const firstCallURL = get1inchQuoteCallUrl(
     chainId,
-    erc20Address[fromToken],
-    erc20Address[toToken],
+    fromToken.address,
+    toToken.address,
     amount
   );
 
@@ -106,8 +116,8 @@ export async function checkArbitrage(
 
     p.addRow(
       {
-        fromToken: fromToken,
-        toToken: toToken,
+        fromToken: fromToken.symbol.padEnd(6),
+        toToken: toToken.symbol.padEnd(6),
 
         fromAmount: Number(ethers.utils.formatUnits(amount, fromTokenDecimal))
           .toFixed(2)
@@ -136,8 +146,8 @@ export async function checkArbitrage(
   const returnAmount = resultData1.toTokenAmount;
   const secondCallURL = get1inchQuoteCallUrl(
     chainId,
-    erc20Address[toToken],
-    erc20Address[fromToken],
+    toToken.address,
+    fromToken.address,
     returnAmount
   );
 
@@ -147,8 +157,8 @@ export async function checkArbitrage(
 
     p.addRow(
       {
-        fromToken: resultData1.fromToken.symbol,
-        toToken: toToken,
+        fromToken: resultData1.fromToken.symbol.padEnd(6),
+        toToken: toToken.symbol.padEnd(6),
 
         fromAmount: Number(
           ethers.utils.formatUnits(
@@ -179,7 +189,7 @@ export async function checkArbitrage(
   }
   const secondRoute = getProtocols(resultData2.protocols);
 
-  const isProfitable = amount2.lt(
+  const isProfitable = amountDiff.lt(
     ethers.BigNumber.from(resultData2.toTokenAmount)
   );
   // isProfitable && console.log({ firstRoute, secondRoute });
@@ -200,8 +210,8 @@ export async function checkArbitrage(
 
   p.addRow(
     {
-      fromToken: resultData1.fromToken.symbol,
-      toToken: resultData1.toToken.symbol,
+      fromToken: resultData1.fromToken.symbol.padEnd(6),
+      toToken: resultData1.toToken.symbol.padEnd(6),
 
       fromAmount: fromTokenAmount.toFixed(2).padStart(7),
       toAmount: toTokenAmount.toFixed(2).padStart(7),
@@ -217,7 +227,7 @@ export async function checkArbitrage(
 
   // isProfitable &&
   //   console.warn(
-  //     initialAmount,
+  //     _initialAmount,
   //     ethers.utils.formatUnits(resultData2.toTokenAmount, resultData2.toToken.decimals)
   //   );
 
