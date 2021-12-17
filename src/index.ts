@@ -1,8 +1,9 @@
 import { config as dotEnvConfig } from "dotenv";
 dotEnvConfig();
 import { checkArbitrage } from "./inchPrice";
-import { baseTokens, interval, tradingTokens } from "./config";
+import { baseTokens, interval, tradingTokens, renderInterval } from "./config";
 import { flashloan } from "./flashloan";
+import chalk = require("chalk");
 
 const readline = require("readline");
 const { Table } = require("console-table-printer");
@@ -10,19 +11,25 @@ const { Table } = require("console-table-printer");
 export const main = async () => {
   console.clear();
 
+  let isFlashLoaning = false;
+
+  const [maxX, _] = process.stdout.getWindowSize();
+
   const p = new Table({
     // title: "Quotes",
     columns: [
       { name: "index", title: "#", alignment: "right" },
 
       { name: "fromToken", title: "From", alignment: "left" },
-      { name: "toToken", title: "To", alignment: "left" },
-
       { name: "fromAmount", title: "Amount", alignment: "right" },
-      { name: "toAmount", title: "Amount", alignment: "right" },
-      { name: "difference", title: "±", alignment: "right" },
 
-      { name: "error", title: "Error", alignment: "left", maxLen: 80 },
+      { name: "toToken", title: "To", alignment: "left" },
+      { name: "toAmount", title: "Amount", alignment: "right" },
+
+      { name: "difference", title: "±", alignment: "right" },
+      { name: "percentage", title: "%", alignment: "right" },
+
+      { name: "log", title: "Log", alignment: "left", maxLen: maxX - 101 },
 
       { name: "time", title: "Time", alignment: "right" },
       { name: "timestamp", title: "Timestamp", alignment: "right" },
@@ -32,20 +39,25 @@ export const main = async () => {
   const pp = new Table({
     title: "Flash Loans",
     columns: [
-      { name: "baseToken", title: "Base Token", alignment: "left" },
-      { name: "tradingToken", title: "Trading Token", alignment: "left" },
+      { name: "baseToken", title: "From", alignment: "left" },
+      { name: "tradingToken", title: "To", alignment: "left" },
+
+      { name: "amount", title: "Amount", alignment: "right" },
+
+      { name: "difference", title: "±", alignment: "right" },
+      { name: "percentage", title: "%", alignment: "right" },
 
       {
         name: "firstRoutes",
         title: "First Routes",
         alignment: "left",
-        maxLen: 50,
+        maxLen: maxX / 2 - 78,
       },
       {
         name: "secondRoutes",
         title: "Second Routes",
         alignment: "left",
-        maxLen: 50,
+        maxLen: maxX / 2 - 79,
       },
 
       {
@@ -54,6 +66,7 @@ export const main = async () => {
         alignment: "left",
       },
 
+      { name: "time", title: "Time", alignment: "right" },
       { name: "timestamp", title: "Timestamp", alignment: "right" },
     ],
   });
@@ -72,10 +85,12 @@ export const main = async () => {
 
         fromAmount: "".padStart(7),
         toAmount: "".padStart(7),
-        difference: "".padStart(7),
 
-        time: "".padStart(5),
-        timestamp: "".padStart(25),
+        difference: "".padStart(7),
+        percentage: "".padStart(5),
+
+        time: "".padStart(6),
+        timestamp: "".padStart(24),
       });
     });
   });
@@ -93,36 +108,74 @@ export const main = async () => {
 
   renderTables();
 
-  setInterval(async () => {
-    baseTokens.forEach(async (baseToken, x, array) => {
-      tradingTokens.forEach(async (tradingToken, y) => {
-        // prevent swapping the same token
-        if (baseToken === tradingToken) return;
+  const chalkTime = (time: number) => {
+    if (time < 0.1) {
+      return "";
+    }
+    const timeStr = time.toFixed(1) + "s";
+    if (time < 30) {
+      return timeStr;
+    } else if (time < 60) {
+      return chalk.yellow(timeStr);
+    } else {
+      return chalk.red(timeStr);
+    }
+  };
 
-        const i = x * array.length + y;
+  // const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
-        const [isProfitable, firstRoutes, secondRoutes] = await checkArbitrage(
+  setInterval(() => {
+    renderTables();
+  }, renderInterval);
+
+  baseTokens.forEach(async (baseToken, x) => {
+    tradingTokens.forEach(async (tradingToken, y) => {
+      // prevent swapping the same token
+      if (baseToken === tradingToken) return;
+
+      const i = x * baseTokens.length + y;
+
+      // await delay(interval / (baseTokens.length * tradingTokens.length) * i)
+
+      const func = async () => {
+        const startTime = Date.now();
+
+        const [
+          isProfitable,
+          firstRoutes,
+          secondRoutes,
+          amount,
+          difference,
+          percentage,
+        ] = await checkArbitrage(
           baseToken,
           tradingToken,
-          {
-            addRow: (text: any, options?: any) => {
-              text.index = i;
-              p.table.createColumnFromRow(text);
-              p.table.rows[i] = {
-                color: options?.color || "white",
-                separator:
-                  options?.separator !== undefined
-                    ? options?.separator
-                    : p.table.rowSeparator,
-                text: text,
-              };
-            },
+
+          (text: any, options?: any) => {
+            text.time = chalkTime((Date.now() - startTime) / 100).padStart(6);
+            text.timestamp = new Date().toISOString();
+
+            p.table.createColumnFromRow(text);
+            p.table.rows[i] = {
+              color: options?.color || p.table.rows[i].color,
+              separator:
+                options?.separator !== undefined
+                  ? options?.separator
+                  : p.table.rows[i].separator,
+              text: { ...p.table.rows[i].text, ...text },
+            };
           }
         );
 
-        if (isProfitable) {
+        renderTables();
+
+        if (isProfitable && !isFlashLoaning) {
           // console.log("Arbitrage detected!");
           if (firstRoutes && secondRoutes) {
+            isFlashLoaning = true;
+
+            const startTime = Date.now();
+
             const tx = await flashloan(
               baseToken,
               tradingToken,
@@ -131,27 +184,40 @@ export const main = async () => {
             );
 
             pp.addRow({
-              baseToken: baseToken,
-              tradingToken: tradingToken,
+              baseToken: baseToken.symbol.padEnd(6),
+              tradingToken: tradingToken.symbol.padEnd(6),
 
-              firstRoutes: firstRoutes.toString(),
-              secondRoutes: secondRoutes.toString(),
+              amount: (amount || "").padStart(7),
+              difference: (difference || "").padStart(7),
+              percentage: (percentage || "").padStart(5),
 
-              txHash: tx.hash,
+              firstRoutes: firstRoutes.map((route) =>
+                route.name.replace("POLYGON_", "")
+              ),
+              secondRoutes: secondRoutes.map((route) =>
+                route.name.replace("POLYGON_", "")
+              ),
 
+              txHash: tx.hash.padStart(66),
+
+              time: chalkTime((Date.now() - startTime) / 100).padStart(6),
               timestamp: new Date().toISOString(),
             });
+
+            isFlashLoaning = false;
+
+            renderTables();
           } else {
             // console.log("No routes found");
           }
         }
+      };
 
-        renderTables();
-      });
+      func();
+
+      setInterval(func, interval);
     });
-
-    renderTables();
-  }, interval);
+  });
 };
 
 main().catch((error) => {

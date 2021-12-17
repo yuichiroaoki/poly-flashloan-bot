@@ -88,9 +88,19 @@ export async function get1inchQuote(
 export async function checkArbitrage(
   fromToken: IToken,
   toToken: IToken,
-  p: any
-): Promise<[boolean, IRoute[] | null, IRoute[] | null]> {
-  const startTime = Date.now();
+  updateRow: Function
+): Promise<
+  [boolean, IRoute[] | null, IRoute[] | null, string?, string?, string?]
+> {
+  // Reset the row to default values.
+  updateRow(
+    {
+      log: ``,
+    },
+    {
+      color: "white",
+    }
+  );
 
   const fromTokenDecimal = fromToken.decimals;
 
@@ -110,11 +120,15 @@ export async function checkArbitrage(
     amount
   );
 
+  updateRow({
+    log: `Getting quote for ${fromToken.symbol} → ${toToken.symbol}…`,
+  });
+
   const resultData1 = await sendRequest(firstCallURL);
   if (!!resultData1.isAxiosError) {
     const e = resultData1;
 
-    p.addRow(
+    updateRow(
       {
         fromToken: fromToken.symbol.padEnd(6),
         toToken: toToken.symbol.padEnd(6),
@@ -123,16 +137,13 @@ export async function checkArbitrage(
           .toFixed(2)
           .padStart(7),
 
-        error:
+        log:
           e.response.status +
           ": " +
           e.response.statusText +
           " (" +
           e.response.data.error +
           ")",
-
-        time: (((Date.now() - startTime) / 100).toFixed(1) + "s").padStart(5),
-        timestamp: new Date().toISOString(),
       },
       {
         color: "red",
@@ -151,11 +162,15 @@ export async function checkArbitrage(
     returnAmount
   );
 
+  updateRow({
+    log: `Getting quote for ${toToken.symbol} → ${fromToken.symbol}…`,
+  });
+
   const resultData2 = await sendRequest(secondCallURL);
   if (!!resultData2.isAxiosError) {
     const e = resultData2;
 
-    p.addRow(
+    updateRow(
       {
         fromToken: resultData1.fromToken.symbol.padEnd(6),
         toToken: toToken.symbol.padEnd(6),
@@ -169,16 +184,13 @@ export async function checkArbitrage(
           .toFixed(2)
           .padStart(7),
 
-        error:
+        log:
           e.response.status +
           ": " +
           e.response.statusText +
           " (" +
           e.response.data.error +
           ")",
-
-        time: (((Date.now() - startTime) / 100).toFixed(1) + "s").padStart(5),
-        timestamp: new Date().toISOString(),
       },
       {
         color: "red",
@@ -206,19 +218,21 @@ export async function checkArbitrage(
       resultData2.toToken.decimals
     )
   );
-  const diff = Number(toTokenAmount) - Number(fromTokenAmount);
+  const difference = Number(toTokenAmount) - Number(fromTokenAmount);
+  const percentage = (difference / Number(fromTokenAmount)) * 100;
 
-  p.addRow(
+  updateRow(
     {
       fromToken: resultData1.fromToken.symbol.padEnd(6),
       toToken: resultData1.toToken.symbol.padEnd(6),
 
       fromAmount: fromTokenAmount.toFixed(2).padStart(7),
       toAmount: toTokenAmount.toFixed(2).padStart(7),
-      difference: chalkDiff(diff).padStart(7),
 
-      time: (((Date.now() - startTime) / 100).toFixed(1) + "s").padStart(5),
-      timestamp: new Date().toISOString(),
+      difference: chalkDifference(difference).padStart(7),
+      percentage: chalkPercentage(percentage).padStart(5),
+
+      log: "",
     },
     {
       color: isProfitable ?? "green",
@@ -231,14 +245,33 @@ export async function checkArbitrage(
   //     ethers.utils.formatUnits(resultData2.toTokenAmount, resultData2.toToken.decimals)
   //   );
 
-  return [isProfitable, firstRoute, secondRoute];
+  return [
+    isProfitable,
+    firstRoute,
+    secondRoute,
+    toTokenAmount.toFixed(2),
+    chalkDifference(difference),
+    chalkPercentage(percentage),
+  ];
 }
 
-const chalkDiff = (diff: number) => {
-  if (diff < 0) {
-    return chalk.red(diff.toFixed(2));
+const chalkDifference = (difference: number) => {
+  const fixedDiff = difference.toFixed(1);
+  if (difference < 0) {
+    return chalk.red(fixedDiff);
+  } else if (difference < diffAmount) {
+    return chalk.yellow(fixedDiff);
   } else {
-    return chalk.green(diff.toFixed(2));
+    return chalk.green(fixedDiff);
+  }
+};
+
+const chalkPercentage = (percentage: number) => {
+  const fixedDiff = percentage.toFixed(1);
+  if (percentage < 0) {
+    return chalk.red(fixedDiff);
+  } else {
+    return chalk.green(fixedDiff);
   }
 };
 

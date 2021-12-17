@@ -1,6 +1,6 @@
 import { BigNumber, ethers } from "ethers";
 import * as FlashloanJson from "./abis/Flashloan.json";
-import { flashloanAddress, gasLimit } from "./config";
+import { flashloanAddress, loanAmount, gasLimit, gasPrice } from "./config";
 import { IToken, dodoV2Pool, uniswapRouter } from "./constrants/addresses";
 import { IRoute } from "./interfaces/main";
 import { getBigNumber } from "./utils/index";
@@ -50,7 +50,7 @@ export const flashloan = async (
 
   params = {
     flashLoanPool: getLendingPool(tokenIn),
-    loanAmount: getBigNumber(10000, 6),
+    loanAmount: getBigNumber(loanAmount, 6),
     firstRoutes: changeToFlashloanRoute(tokenIn, firstRoutes),
     secondRoutes: changeToFlashloanRoute(tokenOut, secondRoutes),
   };
@@ -58,6 +58,7 @@ export const flashloan = async (
   // console.log("Calling flashloan", `${tokenIn} <-> ${tokenOut}`);
   return Flashloan.connect(signer).dodoFlashLoan(params, {
     gasLimit: gasLimit,
+    gasPrice: ethers.utils.parseUnits(`${gasPrice}`, "gwei"),
   });
   // const polyscanURL = "https://polygonscan.com/tx/" + tx.hash;
   // console.log("Flashloan tx: ", tx.hash);
@@ -99,12 +100,12 @@ const changeToFlashloanRoute = (
   return flashloanRoutes;
 };
 
-interface IFlashloanRoute {
+export interface IFlashloanRoute {
   path: string[];
   router: string;
 }
 
-interface IParams {
+export interface IParams {
   flashLoanPool: string;
   loanAmount: BigNumber;
   firstRoutes: IFlashloanRoute[];

@@ -86,9 +86,9 @@ export const ERC20Token: erc20Token = {
     logoURI:
       "https://tokens.1inch.io/0xaaaebe6fe48e54f431b0c390cfaf0b017d09d42d.png",
   },
-  ETH: {
-    symbol: "ETH",
-    name: "Ether",
+  WETH: {
+    symbol: "WETH",
+    name: "Wrapped Ether",
     decimals: 18,
     address: "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619",
     logoURI:
@@ -122,8 +122,6 @@ export const dodoV2Pool: PoolMap = {
   WMATIC_USDC: "0x10Dd6d8A29D489BEDE472CC1b22dc695c144c5c7",
   WMATIC_WETH: "0xC877D7BbCB5b40C3F3d7e7E0d0DA6220BEE027a1",
   USDC_USDT: "0x56FF5E27d40FBF746ADaa3DA820ADb2056F225E7",
-
-  USDC_DAI_PEGGED: "0x3aacaf1740a096926a4b85f43aa5d3404eabfa93",
 };
 
 type RouterMap = { [protocol: string]: string };
