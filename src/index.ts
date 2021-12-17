@@ -188,15 +188,15 @@ export const main = async () => {
               tradingToken: tradingToken.symbol.padEnd(6),
 
               amount: (amount || "").padStart(7),
-              difference: (difference || "").padStart(7),
-              percentage: (percentage || "").padStart(5),
+              difference: (difference || "").padStart(6),
+              percentage: (percentage || "").padStart(4),
 
-              firstRoutes: firstRoutes.map((route) =>
-                route.name.replace("POLYGON_", "")
-              ),
-              secondRoutes: secondRoutes.map((route) =>
-                route.name.replace("POLYGON_", "")
-              ),
+              firstRoutes: firstRoutes
+                .map((route) => route.name.replace("POLYGON_", ""))
+                .join(" → "),
+              secondRoutes: secondRoutes
+                .map((route) => route.name.replace("POLYGON_", ""))
+                .join(" → "),
 
               txHash: tx.hash.padStart(66),
 
