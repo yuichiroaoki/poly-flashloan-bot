@@ -43,7 +43,7 @@ export const tradingTokens = [
  * if you have deployed your own contract, you can use it instead of the default one
  */
 export const flashloanAddress: string =
-  "0xe43A0003955f8745c77A2A987Afa316D6B9828B3";
+  "0x0e0Ec2C716b5Ba2512Af9d3790D8804Da42DDD58";
 
 // protocols the bot will use
 export const protocols =
