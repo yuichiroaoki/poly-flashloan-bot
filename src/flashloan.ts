@@ -1,11 +1,7 @@
 import { BigNumber, ethers } from "ethers";
 import * as FlashloanJson from "./abis/Flashloan.json";
-import { flashloanAddress } from "./config";
-import {
-  dodoV2Pool,
-  erc20Address,
-  uniswapRouter,
-} from "./constrants/addresses";
+import { flashloanAddress, loanAmount, gasLimit, gasPrice } from "./config";
+import { IToken, dodoV2Pool, uniswapRouter } from "./constrants/addresses";
 import { IRoute } from "./interfaces/main";
 import { getBigNumber } from "./utils/index";
 
@@ -40,13 +36,13 @@ const testedPools: testedPoolMap = {
  * @param borrowingToken token to borrow from dodo pool
  * @returns
  */
-const getLendingPool = (borrowingToken: string) => {
-  return testedPools[borrowingToken][0];
+const getLendingPool = (borrowingToken: IToken) => {
+  return testedPools[borrowingToken.symbol][0];
 };
 
 export const flashloan = async (
-  tokenIn: string,
-  tokenOut: string,
+  tokenIn: IToken,
+  tokenOut: IToken,
   firstRoutes: IRoute[],
   secondRoutes: IRoute[]
 ) => {
@@ -54,18 +50,19 @@ export const flashloan = async (
 
   params = {
     flashLoanPool: getLendingPool(tokenIn),
-    loanAmount: getBigNumber(10000, 6),
+    loanAmount: getBigNumber(loanAmount, 6),
     firstRoutes: changeToFlashloanRoute(tokenIn, firstRoutes),
     secondRoutes: changeToFlashloanRoute(tokenOut, secondRoutes),
   };
 
-  console.log("Calling flashloan", `${tokenIn} <-> ${tokenOut}`);
-  const tx = await Flashloan.connect(signer).dodoFlashLoan(params, {
-    gasLimit: 15000000,
+  // console.log("Calling flashloan", `${tokenIn} <-> ${tokenOut}`);
+  return Flashloan.connect(signer).dodoFlashLoan(params, {
+    gasLimit: gasLimit,
+    gasPrice: ethers.utils.parseUnits(`${gasPrice}`, "gwei"),
   });
-  const polyscanURL = "https://polygonscan.com/tx/" + tx.hash;
-  console.log("Flashloan tx: ", tx.hash);
-  console.log("Polyscan URL: ", polyscanURL);
+  // const polyscanURL = "https://polygonscan.com/tx/" + tx.hash;
+  // console.log("Flashloan tx: ", tx.hash);
+  // console.log("Polyscan URL: ", polyscanURL);
 };
 
 /**
@@ -75,11 +72,11 @@ export const flashloan = async (
  * @returns
  */
 const changeToFlashloanRoute = (
-  tokenIn: string,
+  tokenIn: IToken,
   routes: IRoute[]
 ): IFlashloanRoute[] => {
   let firstRoute: IFlashloanRoute = {
-    path: [erc20Address[tokenIn]],
+    path: [tokenIn.address],
     router: uniswapRouter[routes[0].name],
   };
   let flashloanRoutes: IFlashloanRoute[] = [firstRoute];
@@ -103,12 +100,12 @@ const changeToFlashloanRoute = (
   return flashloanRoutes;
 };
 
-interface IFlashloanRoute {
+export interface IFlashloanRoute {
   path: string[];
   router: string;
 }
 
-interface IParams {
+export interface IParams {
   flashLoanPool: string;
   loanAmount: BigNumber;
   firstRoutes: IFlashloanRoute[];

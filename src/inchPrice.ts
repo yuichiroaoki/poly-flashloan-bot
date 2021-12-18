@@ -1,10 +1,11 @@
 import { config as dotEnvConfig } from "dotenv";
 dotEnvConfig();
+import chalk = require("chalk");
 import { BigNumber, ethers } from "ethers";
 import axios from "axios";
-import { chainId, protocols } from "./config";
+import { chainId, protocols, initialAmount, diffAmount } from "./config";
 import { IRoute } from "./interfaces/main";
-import { erc20Address } from "./constrants/addresses";
+import { IToken } from "./constrants/addresses";
 
 /**
  * Will get the 1inch API call URL for a trade
@@ -21,7 +22,7 @@ function get1inchQuoteCallUrl(
   amount: BigNumber
 ): string {
   const callURL =
-    "https://api.1inch.exchange/v3.0/" +
+    "https://api.1inch.exchange/v4.0/" +
     chainId +
     "/quote?" +
     "fromTokenAddress=" +
@@ -50,14 +51,20 @@ export async function get1inchQuote(
   amount: string = ethers.utils.parseUnits("1.0", 18).toString()
 ): Promise<number | null> {
   let callURL =
-    "https://api.1inch.exchange/v3.0/" +
+    "https://api.1inch.exchange/v4.0/" +
     chainId +
-    "/quote?" +
+    "/quote" +
+    "?" +
+    // contract address of a token to sell
     "fromTokenAddress=" +
     fromTokenAddress +
-    "&toTokenAddress=" +
+    "&" +
+    // contract address of a token to buy
+    "toTokenAddress=" +
     toTokenAddress +
-    "&amount=" +
+    "&" +
+    // amount of a token to sell
+    "amount=" +
     amount;
 
   const result = await sendRequest(callURL);
@@ -79,21 +86,70 @@ export async function get1inchQuote(
  * @returns
  */
 export async function checkArbitrage(
-  fromToken: string,
-  toToken: string,
-  fromTokenDecimal: number = 18
-): Promise<[boolean, IRoute[] | null, IRoute[] | null]> {
-  const initialAmount = "1000";
-  const amount = ethers.utils.parseUnits(initialAmount, fromTokenDecimal);
+  fromToken: IToken,
+  toToken: IToken,
+  updateRow: Function
+): Promise<
+  [boolean, IRoute[] | null, IRoute[] | null, string?, string?, string?]
+> {
+  // Reset the row to default values.
+  updateRow(
+    {
+      log: ``,
+    },
+    {
+      color: "white",
+    }
+  );
+
+  const fromTokenDecimal = fromToken.decimals;
+
+  const amount = ethers.utils.parseUnits(
+    initialAmount.toString(),
+    fromTokenDecimal
+  );
+  const amountDiff = ethers.utils.parseUnits(
+    (initialAmount + diffAmount).toString(),
+    fromTokenDecimal
+  );
+
   const firstCallURL = get1inchQuoteCallUrl(
     chainId,
-    erc20Address[fromToken],
-    erc20Address[toToken],
+    fromToken.address,
+    toToken.address,
     amount
   );
 
+  updateRow({
+    log: `Getting quote for ${fromToken.symbol} → ${toToken.symbol}…`,
+  });
+
   const resultData1 = await sendRequest(firstCallURL);
-  if (!resultData1) {
+  if (!!resultData1.isAxiosError) {
+    const e = resultData1;
+
+    updateRow(
+      {
+        fromToken: fromToken.symbol.padEnd(6),
+        toToken: toToken.symbol.padEnd(6),
+
+        fromAmount: Number(ethers.utils.formatUnits(amount, fromTokenDecimal))
+          .toFixed(2)
+          .padStart(7),
+
+        log:
+          e.response.status +
+          ": " +
+          e.response.statusText +
+          " (" +
+          e.response.data.error +
+          ")",
+      },
+      {
+        color: "red",
+      }
+    );
+
     return [false, null, null];
   }
 
@@ -101,30 +157,123 @@ export async function checkArbitrage(
   const returnAmount = resultData1.toTokenAmount;
   const secondCallURL = get1inchQuoteCallUrl(
     chainId,
-    erc20Address[toToken],
-    erc20Address[fromToken],
+    toToken.address,
+    fromToken.address,
     returnAmount
   );
 
+  updateRow({
+    log: `Getting quote for ${toToken.symbol} → ${fromToken.symbol}…`,
+  });
+
   const resultData2 = await sendRequest(secondCallURL);
-  if (!resultData2) {
+  if (!!resultData2.isAxiosError) {
+    const e = resultData2;
+
+    updateRow(
+      {
+        fromToken: resultData1.fromToken.symbol.padEnd(6),
+        toToken: toToken.symbol.padEnd(6),
+
+        fromAmount: Number(
+          ethers.utils.formatUnits(
+            resultData1.fromTokenAmount,
+            resultData1.fromToken.decimals
+          )
+        )
+          .toFixed(2)
+          .padStart(7),
+
+        log:
+          e.response.status +
+          ": " +
+          e.response.statusText +
+          " (" +
+          e.response.data.error +
+          ")",
+      },
+      {
+        color: "red",
+      }
+    );
+
     return [false, null, null];
   }
   const secondRoute = getProtocols(resultData2.protocols);
 
-  const isProfitable = amount.lt(
+  const isProfitable = amountDiff.lt(
     ethers.BigNumber.from(resultData2.toTokenAmount)
   );
-  isProfitable && console.log({ firstRoute, secondRoute });
+  // isProfitable && console.log({ firstRoute, secondRoute });
 
-  isProfitable &&
-    console.log(
-      initialAmount,
-      ethers.utils.formatUnits(resultData2.toTokenAmount, 18).slice(0, 9)
-    );
+  const fromTokenAmount = Number(
+    ethers.utils.formatUnits(
+      resultData1.fromTokenAmount,
+      resultData1.fromToken.decimals
+    )
+  );
+  const toTokenAmount = Number(
+    ethers.utils.formatUnits(
+      resultData2.toTokenAmount,
+      resultData2.toToken.decimals
+    )
+  );
+  const difference = Number(toTokenAmount) - Number(fromTokenAmount);
+  const percentage = (difference / Number(fromTokenAmount)) * 100;
 
-  return [isProfitable, firstRoute, secondRoute];
+  updateRow(
+    {
+      fromToken: resultData1.fromToken.symbol.padEnd(6),
+      toToken: resultData1.toToken.symbol.padEnd(6),
+
+      fromAmount: fromTokenAmount.toFixed(2).padStart(7),
+      toAmount: toTokenAmount.toFixed(2).padStart(7),
+
+      difference: chalkDifference(difference).padStart(7),
+      percentage: chalkPercentage(percentage).padStart(5),
+
+      log: "",
+    },
+    {
+      color: isProfitable ?? "green",
+    }
+  );
+
+  // isProfitable &&
+  //   console.warn(
+  //     _initialAmount,
+  //     ethers.utils.formatUnits(resultData2.toTokenAmount, resultData2.toToken.decimals)
+  //   );
+
+  return [
+    isProfitable,
+    firstRoute,
+    secondRoute,
+    toTokenAmount.toFixed(2),
+    chalkDifference(difference),
+    chalkPercentage(percentage),
+  ];
 }
+
+const chalkDifference = (difference: number) => {
+  const fixedDiff = difference.toFixed(1);
+  if (difference < 0) {
+    return chalk.red(fixedDiff);
+  } else if (difference < diffAmount) {
+    return chalk.yellow(fixedDiff);
+  } else {
+    return chalk.green(fixedDiff);
+  }
+};
+
+const chalkPercentage = (percentage: number) => {
+  const fixedDiff = percentage.toFixed(1);
+  if (percentage < 0) {
+    return chalk.red(fixedDiff);
+  } else {
+    return chalk.green(fixedDiff);
+  }
+};
 
 const sendRequest = async (url: string) => {
   let response: any = await axios
@@ -132,9 +281,8 @@ const sendRequest = async (url: string) => {
     .then((result) => {
       return result.data;
     })
-    .catch(() => {
-      console.log("Error: Failed to fetch data from 1inch");
-      return null;
+    .catch((error) => {
+      return error;
     });
 
   return response;

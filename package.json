@@ -15,23 +15,24 @@
     "postpublish": "pinst --enable"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.24",
-    "husky": "^7.0.0",
-    "jest": "^27.0.6",
-    "lint-staged": "^11.1.2",
-    "nodemon": "^2.0.12",
-    "pinst": "^2.0.0",
-    "prettier": "2.4.1",
-    "ts-jest": "^27.0.4"
+    "@types/jest": "latest",
+    "husky": "latest",
+    "jest": "latest",
+    "lint-staged": "latest",
+    "nodemon": "latest",
+    "pinst": "latest",
+    "prettier": "latest",
+    "ts-jest": "latest"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^4.2.0",
-    "@types/node": "^15.12.2",
-    "axios": "^0.22.0",
-    "dotenv": "^10.0.0",
+    "@openzeppelin/contracts": "latest",
+    "@types/node": "latest",
+    "axios": "latest",
+    "console-table-printer": "latest",
+    "dotenv": "latest",
     "ethers": "^5.0.0",
-    "ts-node": "^10.0.0",
-    "typescript": "^4.3.2"
+    "ts-node": "latest",
+    "typescript": "latest"
   },
   "packageManager": "yarn@3.0.2",
   "lint-staged": {
