@@ -138,12 +138,14 @@ export async function checkArbitrage(
           .padStart(7),
 
         log:
-          e.response.status +
-          ": " +
-          e.response.statusText +
-          " (" +
-          e.response.data.error +
-          ")",
+          e.response !== undefined
+            ? e.response.status +
+              ": " +
+              e.response.statusText +
+              " (" +
+              e.response.data.error +
+              ")"
+            : "",
       },
       {
         color: "red",
@@ -185,12 +187,14 @@ export async function checkArbitrage(
           .padStart(7),
 
         log:
-          e.response.status +
-          ": " +
-          e.response.statusText +
-          " (" +
-          e.response.data.error +
-          ")",
+          e.response !== undefined
+            ? e.response.status +
+              ": " +
+              e.response.statusText +
+              " (" +
+              e.response.data.error +
+              ")"
+            : "",
       },
       {
         color: "red",
