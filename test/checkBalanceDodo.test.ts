@@ -18,9 +18,9 @@ describe("DODO pool check", () => {
 
   describe("Check if dodo pools have enough tokens", () => {
     for (const [name, poolAddr] of Object.entries(dodoV2Pool)) {
-      it(name, async () => {
+      test(name, async () => {
         const dodoPool = new ethers.Contract(poolAddr, DodoPool.abi, provider);
-        expect((await dodoPool._BASE_RESERVE_()).gt(getBigNumber(1000, 6)));
+        expect((await dodoPool._BASE_RESERVE_()).gt(getBigNumber(10000, 6)));
         expect((await dodoPool._QUOTE_RESERVE_()).gt(getBigNumber(10000, 6)));
       });
     }
