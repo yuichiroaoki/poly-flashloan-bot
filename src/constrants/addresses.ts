@@ -1,4 +1,4 @@
-export const polyMatic = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
+export const polyMatic = "0x0000000000000000000000000000000000001010";
 export const polyAAVEAddressProvider =
   "0xd05e3E715d945B59290df0ae8eF85c1BdB684744";
 export const dex1inch = "0x11111112542D85B3EF69AE05771c2dCCff4fAa26";
@@ -18,7 +18,7 @@ export const ERC20Token: erc20Token = {
     symbol: "MATIC",
     name: "MATIC",
     decimals: 18,
-    address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    address: "0x0000000000000000000000000000000000001010",
     logoURI:
       "https://tokens.1inch.io/0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0.png",
   },
