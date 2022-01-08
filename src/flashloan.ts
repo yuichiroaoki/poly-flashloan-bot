@@ -27,8 +27,8 @@ const testedPools: testedPoolMap = {
   DAI: [dodoV2Pool.USDC_DAI],
   WETH: [dodoV2Pool.WETH_USDC],
   USDC: [dodoV2Pool.WETH_USDC, dodoV2Pool.USDC_DAI],
-  USDT: [dodoV2Pool.WMATIC_USDT],
-  WMATIC: [dodoV2Pool.WMATIC_USDT],
+  USDT: [dodoV2Pool.USDT_DAI],
+  WMATIC: [dodoV2Pool.WMATIC_USDC],
 };
 
 /**
