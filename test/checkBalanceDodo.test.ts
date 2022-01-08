@@ -1,0 +1,28 @@
+import { ethers } from "ethers";
+import { getBigNumber } from "../src/utils";
+import { dodoV2Pool } from "../src/constrants/addresses";
+import { polygonChainID } from "../src/constrants/chainId";
+import * as DodoPool from "../src/abis/IDODO.json";
+import { Network } from "@ethersproject/networks";
+import { config as dotEnvConfig } from "dotenv";
+dotEnvConfig();
+
+describe("DODO pool check", () => {
+  const matic: Network = {
+    name: "matic",
+    chainId: polygonChainID,
+    _defaultProvider: (providers) =>
+      new providers.JsonRpcProvider(process.env.ALCHEMY_POLYGON_RPC_URL),
+  };
+  const provider = ethers.getDefaultProvider(matic);
+
+  describe("Check if dodo pools have enough tokens", () => {
+    for (const [name, poolAddr] of Object.entries(dodoV2Pool)) {
+      it(name, async () => {
+        const dodoPool = new ethers.Contract(poolAddr, DodoPool.abi, provider);
+        expect((await dodoPool._BASE_RESERVE_()).gt(getBigNumber(1000, 6)));
+        expect((await dodoPool._QUOTE_RESERVE_()).gt(getBigNumber(10000, 6)));
+      });
+    }
+  });
+});
