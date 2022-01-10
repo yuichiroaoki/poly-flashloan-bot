@@ -40,9 +40,9 @@ const findPool = (pool: string) => {
 };
 
 const router = (route: IFlashloanRoute) => {
-  return `${findRouter(route.router)}: ${findToken(
-    route.path[0]
-  )} → ${findToken(route.path[1])}`;
+  return `${findRouter(route.pool)}: ${findToken(route.path[0])} → ${findToken(
+    route.path[1]
+  )}`;
 };
 
 export const main = async () => {

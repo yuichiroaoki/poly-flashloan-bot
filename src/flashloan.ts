@@ -75,11 +75,10 @@ const changeToFlashloanRoute = (
   tokenIn: IToken,
   routes: IRoute[]
 ): IFlashloanRoute[] => {
-  let firstRoute: IFlashloanRoute = {
-    path: [tokenIn.address],
-    router: uniswapRouter[routes[0].name],
-  };
-  let flashloanRoutes: IFlashloanRoute[] = [firstRoute];
+  let flashloanRoutes: IFlashloanRoute[] = getInitialFlashloanRoutes(
+    tokenIn,
+    routes[0]
+  );
   let previosProtocol = routes[0].name;
   let currentIndex = 0;
 
@@ -89,9 +88,12 @@ const changeToFlashloanRoute = (
     } else {
       const lastPath = flashloanRoutes[currentIndex].path;
       const fromToken = lastPath[lastPath.length - 1];
+      const protocol = pickProtocol(swap.name);
       flashloanRoutes.push({
         path: [fromToken, swap.toTokenAddress],
-        router: uniswapRouter[swap.name],
+        protocol: protocol,
+        pool: pickPoolAddress(protocol, swap),
+        fee: [0],
       });
       currentIndex++;
       previosProtocol = swap.name;
@@ -102,7 +104,9 @@ const changeToFlashloanRoute = (
 
 export interface IFlashloanRoute {
   path: string[];
-  router: string;
+  protocol: number;
+  pool: string;
+  fee: number[];
 }
 
 export interface IParams {
@@ -111,3 +115,33 @@ export interface IParams {
   firstRoutes: IFlashloanRoute[];
   secondRoutes: IFlashloanRoute[];
 }
+
+const getInitialFlashloanRoutes = (
+  tokenIn: IToken,
+  route: IRoute
+): IFlashloanRoute[] => {
+  const protocol = pickProtocol(route.name);
+  const firstRoute: IFlashloanRoute = {
+    path: [tokenIn.address],
+    protocol: pickProtocol(route.name),
+    pool: pickPoolAddress(protocol, route),
+    fee: [0],
+  };
+  return [firstRoute];
+};
+
+export const pickProtocol = (protocol_name: string) => {
+  if (protocol_name === "POLYGON_UNISWAP_V3") {
+    return 2;
+  }
+  return 1;
+};
+
+export const pickPoolAddress = (protocol: number, route: IRoute) => {
+  switch (protocol) {
+    case 1:
+      return uniswapRouter[route.name];
+    default:
+      return "";
+  }
+};
