@@ -47,7 +47,7 @@ export const flashloanAddress: string =
 
 // protocols the bot will use
 export const protocols =
-  "POLYGON_SUSHISWAP,POLYGON_QUICKSWAP,POLYGON_APESWAP,POLYGON_JETSWAP,POLYGON_WAULTSWAP";
+  "POLYGON_SUSHISWAP,POLYGON_QUICKSWAP,POLYGON_APESWAP,POLYGON_JETSWAP,POLYGON_WAULTSWAP,POLYGON_UNISWAP_V3";
 
 export const slippage = 3; // percentage
 export const gasLimit = 15000000;
