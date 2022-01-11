@@ -37,11 +37,15 @@ const uniswapV3Fee: FeeMap = {
   },
 };
 
-export const getUniswapV3PoolFee = (tokens: string[]): number => {
-  try {
-    return uniswapV3Fee[tokens[0]][tokens[1]];
-  } catch (error) {
-    // set default as 0.3%
-    return 3000;
+export const getUniswapV3PoolFee = (tokens: string[]): number[] => {
+  let feeArray = [];
+  for (let i = 0; i < tokens.length - 1; i++) {
+    try {
+      feeArray.push(uniswapV3Fee[tokens[i]][tokens[i + 1]]);
+    } catch (error) {
+      // set default as 0.3%
+      feeArray.push(3000);
+    }
   }
+  return feeArray;
 };
