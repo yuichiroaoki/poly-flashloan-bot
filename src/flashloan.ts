@@ -79,11 +79,11 @@ const changeToFlashloanRoute = (
     tokenIn,
     routes[0]
   );
-  let previosProtocol = routes[0].name;
+  let previousProtocol = routes[0].name;
   let currentIndex = 0;
 
   for (const swap of routes) {
-    if (previosProtocol === swap.name) {
+    if (previousProtocol === swap.name) {
       flashloanRoutes[currentIndex].path.push(swap.toTokenAddress);
     } else {
       const lastPath = flashloanRoutes[currentIndex].path;
@@ -96,7 +96,7 @@ const changeToFlashloanRoute = (
         fee: [0],
       });
       currentIndex++;
-      previosProtocol = swap.name;
+      previousProtocol = swap.name;
     }
   }
   return flashloanRoutes;
