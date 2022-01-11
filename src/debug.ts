@@ -1,8 +1,8 @@
 require("dotenv").config();
 import { ethers } from "ethers";
 import * as ABI from "./abis/Flashloan.json";
-import { IFlashloanRoute, IParams } from "./flashloan";
 import { ERC20Token, dodoV2Pool, uniswapRouter } from "./constrants/addresses";
+import { IFlashloanRoute } from "./interfaces/main";
 
 if (process.env.ALCHEMY_POLYGON_RPC_URL === undefined) {
   throw new Error("Please set ALCHEMY_POLYGON_RPC_URL environment variable.");

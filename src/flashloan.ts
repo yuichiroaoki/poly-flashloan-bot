@@ -1,8 +1,8 @@
-import { BigNumber, ethers } from "ethers";
+import { ethers } from "ethers";
 import * as FlashloanJson from "./abis/Flashloan.json";
 import { flashloanAddress, loanAmount, gasLimit, gasPrice } from "./config";
 import { IToken, dodoV2Pool, uniswapRouter } from "./constrants/addresses";
-import { IRoute } from "./interfaces/main";
+import { IFlashloanRoute, IParams, IRoute } from "./interfaces/main";
 import { getUniswapV3PoolFee } from "./uniswap/v3/fee";
 import { getBigNumber } from "./utils/index";
 
@@ -104,20 +104,6 @@ const changeToFlashloanRoute = (
   return flashloanRoutes;
 };
 
-export interface IFlashloanRoute {
-  path: string[];
-  protocol: number;
-  pool: string;
-  fee: number[];
-}
-
-export interface IParams {
-  flashLoanPool: string;
-  loanAmount: BigNumber;
-  firstRoutes: IFlashloanRoute[];
-  secondRoutes: IFlashloanRoute[];
-}
-
 const getInitialFlashloanRoutes = (
   tokenIn: IToken,
   route: IRoute
@@ -132,14 +118,14 @@ const getInitialFlashloanRoutes = (
   return [firstRoute];
 };
 
-export const pickProtocol = (protocol_name: string) => {
+const pickProtocol = (protocol_name: string) => {
   if (protocol_name === "POLYGON_UNISWAP_V3") {
     return 2;
   }
   return 1;
 };
 
-export const pickPoolAddress = (protocol: number, route: IRoute) => {
+const pickPoolAddress = (protocol: number, route: IRoute) => {
   switch (protocol) {
     case 1:
       return uniswapRouter[route.name];
