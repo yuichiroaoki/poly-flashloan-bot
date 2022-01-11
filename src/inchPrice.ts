@@ -5,7 +5,8 @@ import { BigNumber, ethers } from "ethers";
 import axios from "axios";
 import { chainId, protocols, initialAmount, diffAmount } from "./config";
 import { IRoute } from "./interfaces/main";
-import { IToken } from "./constrants/addresses";
+import { ERC20Token, IToken } from "./constrants/addresses";
+import { replaceTokenAddress } from "./utils";
 
 /**
  * Will get the 1inch API call URL for a trade
@@ -155,7 +156,7 @@ export async function checkArbitrage(
     return [false, null, null];
   }
 
-  const firstRoute = getProtocols(resultData1.protocols);
+  const firstRoute = getRoutes(resultData1.protocols);
   const returnAmount = resultData1.toTokenAmount;
   const secondCallURL = get1inchQuoteCallUrl(
     chainId,
@@ -203,7 +204,7 @@ export async function checkArbitrage(
 
     return [false, null, null];
   }
-  const secondRoute = getProtocols(resultData2.protocols);
+  const secondRoute = getRoutes(resultData2.protocols);
 
   const isProfitable = amountDiff.lt(
     ethers.BigNumber.from(resultData2.toTokenAmount)
@@ -322,4 +323,16 @@ const getMaxPart = (onehop: IProtocol[]): IProtocol => {
     }
   });
   return onehop[key];
+};
+
+const getRoutes = (protocols: IProtocol[][][]): IRoute[] => {
+  let routes = getProtocols(protocols);
+  for (const route of routes) {
+    route.toTokenAddress = replaceTokenAddress(
+      route.toTokenAddress,
+      ERC20Token.MATIC.address,
+      ERC20Token.WMATIC.address
+    );
+  }
+  return routes;
 };

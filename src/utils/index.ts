@@ -17,3 +17,11 @@ export const preventUnderflow = (amount: number, decimals: number): string => {
   }
   return amount.toString();
 };
+
+export const replaceTokenAddress = (
+  token: string,
+  address: string,
+  newAddress: string
+) => {
+  return token === address ? newAddress : token;
+};
