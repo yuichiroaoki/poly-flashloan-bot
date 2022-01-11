@@ -1,4 +1,4 @@
-import { getUniswapV3PoolFee } from "../src/uniswap/v3";
+import { getUniswapV3PoolFee } from "../src/uniswap/v3/fee";
 
 describe("UniswapV3 pool fee test", () => {
   describe("Check if it returns the correct a pool fee.", () => {
