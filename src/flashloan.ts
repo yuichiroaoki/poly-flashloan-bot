@@ -3,6 +3,7 @@ import * as FlashloanJson from "./abis/Flashloan.json";
 import { flashloanAddress, loanAmount, gasLimit, gasPrice } from "./config";
 import { IToken, dodoV2Pool, uniswapRouter } from "./constrants/addresses";
 import { IRoute } from "./interfaces/main";
+import { getUniswapV3PoolFee } from "./uniswap/v3/fee";
 import { getBigNumber } from "./utils/index";
 
 const maticProvider = new ethers.providers.JsonRpcProvider(
@@ -88,12 +89,13 @@ const changeToFlashloanRoute = (
     } else {
       const lastPath = flashloanRoutes[currentIndex].path;
       const fromToken = lastPath[lastPath.length - 1];
+      const path = [fromToken, swap.toTokenAddress];
       const protocol = pickProtocol(swap.name);
       flashloanRoutes.push({
-        path: [fromToken, swap.toTokenAddress],
+        path: path,
         protocol: protocol,
         pool: pickPoolAddress(protocol, swap),
-        fee: [0],
+        fee: protocol === 2 ? getUniswapV3PoolFee(path) : [0],
       });
       currentIndex++;
       previousProtocol = swap.name;
