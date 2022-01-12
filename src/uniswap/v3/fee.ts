@@ -1,3 +1,5 @@
+import { findToken } from "../../utils";
+
 type FeeMap = {
   [pair: string]: {
     [pair: string]: number;
@@ -37,8 +39,9 @@ const uniswapV3Fee: FeeMap = {
   },
 };
 
-export const getUniswapV3PoolFee = (tokens: string[]): number[] => {
+export const getUniswapV3PoolFee = (tokenAddresses: string[]): number[] => {
   let feeArray = [];
+  const tokens = tokenAddresses.map(findToken);
   for (let i = 0; i < tokens.length - 1; i++) {
     try {
       feeArray.push(uniswapV3Fee[tokens[i]][tokens[i + 1]]);
