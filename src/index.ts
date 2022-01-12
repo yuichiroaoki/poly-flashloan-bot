@@ -170,7 +170,6 @@ export const main = async () => {
         renderTables();
 
         if (isProfitable && !isFlashLoaning) {
-          // console.log("Arbitrage detected!");
           if (firstRoutes && secondRoutes) {
             isFlashLoaning = true;
 

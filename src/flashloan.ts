@@ -86,6 +86,11 @@ const changeToFlashloanRoute = (
   for (const swap of routes) {
     if (previousProtocol === swap.name) {
       flashloanRoutes[currentIndex].path.push(swap.toTokenAddress);
+      if (swap.name == "POLYGON_UNISWAP_V3") {
+        flashloanRoutes[currentIndex].fee = getUniswapV3PoolFee(
+          flashloanRoutes[currentIndex].path
+        );
+      }
     } else {
       const lastPath = flashloanRoutes[currentIndex].path;
       const fromToken = lastPath[lastPath.length - 1];
