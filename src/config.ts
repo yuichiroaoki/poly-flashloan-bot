@@ -14,10 +14,6 @@ export const diffAmount = 10; // Not enough amount to return loan
 //export const chainId = 56;// Binance Smart Chain
 export const chainId = 137; // Polygon
 
-export const provider = new ethers.providers.JsonRpcProvider(
-  process.env.ALCHEMY_POLYGON_RPC_URL
-);
-
 export const explorerURL = "https://polygonscan.com";
 
 // Token pair the bot trading

@@ -1,7 +1,6 @@
 require("dotenv").config();
 import { ethers } from "ethers";
 import * as ABI from "./abis/Flashloan.json";
-import { ERC20Token, dodoV2Pool, uniswapRouter } from "./constrants/addresses";
 import { IFlashloanRoute } from "./interfaces/main";
 import { findPool, findRouter, findToken } from "./utils";
 
