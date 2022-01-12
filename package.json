@@ -30,7 +30,7 @@
     "axios": "latest",
     "console-table-printer": "latest",
     "dotenv": "latest",
-    "ethers": "^5.0.0",
+    "ethers": "^5.5.3",
     "ts-node": "latest",
     "typescript": "latest"
   },
