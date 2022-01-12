@@ -130,6 +130,6 @@ const pickPoolAddress = (protocol: number, route: IRoute) => {
     case 1:
       return uniswapRouter[route.name];
     default:
-      return "";
+      return uniswapRouter.POLYGON_SUSHISWAP;
   }
 };

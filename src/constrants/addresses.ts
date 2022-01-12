@@ -1,4 +1,3 @@
-export const polyMatic = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
 export const polyAAVEAddressProvider =
   "0xd05e3E715d945B59290df0ae8eF85c1BdB684744";
 export const dex1inch = "0x11111112542D85B3EF69AE05771c2dCCff4fAa26";
