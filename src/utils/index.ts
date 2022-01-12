@@ -1,4 +1,5 @@
 import { ethers } from "ethers";
+import { dodoV2Pool, ERC20Token, uniswapRouter } from "../constrants/addresses";
 
 const { BigNumber } = ethers;
 
@@ -24,4 +25,31 @@ export const replaceTokenAddress = (
   newAddress: string
 ) => {
   return token === address ? newAddress : token;
+};
+
+export const findRouter = (router: string) => {
+  for (let k of Object.keys(uniswapRouter)) {
+    if (router.toLowerCase() === uniswapRouter[k].toLowerCase()) {
+      return k;
+    }
+  }
+  return "UNKNOWN";
+};
+
+export const findToken = (token: string) => {
+  for (let k of Object.keys(ERC20Token)) {
+    if (token.toLowerCase() === ERC20Token[k].address.toLowerCase()) {
+      return k;
+    }
+  }
+  return "UNKNOWN";
+};
+
+export const findPool = (pool: string) => {
+  for (let k of Object.keys(dodoV2Pool)) {
+    if (pool.toLowerCase() === dodoV2Pool[k].toLowerCase()) {
+      return k;
+    }
+  }
+  return "UNKNOWN";
 };
