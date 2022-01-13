@@ -206,8 +206,6 @@ export const main = async () => {
             isFlashLoaning = false;
 
             renderTables();
-          } else {
-            // console.log("No routes found");
           }
         }
       };

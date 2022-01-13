@@ -56,7 +56,6 @@ export const flashloan = async (
     secondRoutes: changeToFlashloanRoute(tokenOut, secondRoutes),
   };
 
-  // console.log("Calling flashloan", `${tokenIn} <-> ${tokenOut}`);
   return Flashloan.connect(signer).dodoFlashLoan(params, {
     gasLimit: gasLimit,
     gasPrice: ethers.utils.parseUnits(`${gasPrice}`, "gwei"),
