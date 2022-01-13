@@ -1,4 +1,3 @@
-import { ethers } from "ethers";
 import { ERC20Token } from "./constrants/addresses";
 
 export const renderInterval = 1 * 1000;
@@ -35,11 +34,11 @@ export const tradingTokens = [
 
 /**
  * @type {string} public flashloan contract address
- * Polyscan: https://polygonscan.com/address/0x0e0ec2c716b5ba2512af9d3790d8804da42ddd58
+ * Polyscan: https://polygonscan.com/address/0xb6c4448386c4ecf4e5eab057351f8a6a8a465a0d
  * if you have deployed your own contract, you can use it instead of the default one
  */
 export const flashloanAddress: string =
-  "0x0e0Ec2C716b5Ba2512Af9d3790D8804Da42DDD58";
+  "0xb6C4448386c4ECF4e5eAB057351f8a6A8A465a0D";
 
 // protocols the bot will use
 export const protocols =
