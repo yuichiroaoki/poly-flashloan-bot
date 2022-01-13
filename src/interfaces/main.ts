@@ -1,29 +1,20 @@
-export interface exchangeRateInterface {
-  buy: number;
-  sell: number;
-}
-
-export interface TokenInterface {
-  address: string;
-  decimal: number;
-  symbol: string;
-  midAddress?: string;
-  midDecimal?: number;
-}
-
-enum Status {
-  Stay = 0,
-  Buy,
-  Sell,
-}
-
-export interface IPriveChangeInfo {
-  base: number;
-  change: number;
-  status: Status;
-}
+import { BigNumber } from "ethers";
 
 export interface IRoute {
   name: string;
   toTokenAddress: string;
+}
+
+export interface IFlashloanRoute {
+  path: string[];
+  protocol: number;
+  pool: string;
+  fee: number[];
+}
+
+export interface IParams {
+  flashLoanPool: string;
+  loanAmount: BigNumber;
+  firstRoutes: IFlashloanRoute[];
+  secondRoutes: IFlashloanRoute[];
 }
