@@ -51,7 +51,7 @@ export const flashloan = async (
 
   params = {
     flashLoanPool: getLendingPool(tokenIn),
-    loanAmount: getBigNumber(loanAmount, 6),
+    loanAmount: getBigNumber(loanAmount, tokenIn.decimals),
     firstRoutes: changeToFlashloanRoute(tokenIn, firstRoutes),
     secondRoutes: changeToFlashloanRoute(tokenOut, secondRoutes),
   };
