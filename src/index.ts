@@ -130,8 +130,8 @@ export const main = async () => {
 
   baseTokens.forEach(async (baseToken, x) => {
     tradingTokens.forEach(async (tradingToken, y) => {
-      // prevent swapping the same token
-      if (baseToken === tradingToken) return;
+      // prevent swapping the same pair
+      if (baseToken.address <= tradingToken.address) return;
 
       const i = x * baseTokens.length + y;
 
