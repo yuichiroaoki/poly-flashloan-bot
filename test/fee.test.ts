@@ -1,4 +1,4 @@
-import { ERC20Token } from "../src/constrants/addresses";
+import { ERC20Token } from "../src/constants/addresses";
 import { getUniswapV3PoolFee } from "../src/uniswap/v3/fee";
 
 describe("UniswapV3 pool fee test", () => {
