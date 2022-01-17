@@ -67,8 +67,6 @@ Edit [src/config.ts](https://github.com/yuichiroaoki/poly-flashloan-bot/blob/mai
 
 If you have deployed your own contract, replace `flashloan address` to your deployed smart contract address.
 
-[flashloan address](https://github.com/yuichiroaoki/poly-flashloan-bot/blob/2778e4b5e87c261f11db56a647ac5eadf28e26c2/src/config.ts#L37)
-
 ```typescript
 export const flashloanAddress = "<your-deployed-contract-address>";
 ```
