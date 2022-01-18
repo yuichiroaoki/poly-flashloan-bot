@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import { dodoV2Pool, ERC20Token, uniswapRouter } from "../constrants/addresses";
+import { dodoV2Pool, ERC20Token, uniswapRouter } from "../constants/addresses";
 
 const { BigNumber } = ethers;
 

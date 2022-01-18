@@ -1,4 +1,4 @@
-import { ERC20Token } from "./constrants/addresses";
+import { ERC20Token } from "./constants/addresses";
 
 export const renderInterval = 1 * 1000;
 

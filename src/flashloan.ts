@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import * as FlashloanJson from "./abis/Flashloan.json";
 import { flashloanAddress, loanAmount, gasLimit, gasPrice } from "./config";
-import { IToken, dodoV2Pool, uniswapRouter } from "./constrants/addresses";
+import { IToken, dodoV2Pool, uniswapRouter } from "./constants/addresses";
 import { IFlashloanRoute, IParams, IRoute } from "./interfaces/main";
 import { getUniswapV3PoolFee } from "./uniswap/v3/fee";
 import { getBigNumber } from "./utils/index";
