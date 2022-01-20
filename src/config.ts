@@ -5,7 +5,6 @@ export const renderInterval = 1 * 1000;
 // interval of price check (ms)
 export const interval = 10 * 1000;
 
-export const initialAmount = 1000;
 export const loanAmount = 10000;
 export const diffAmount = 10; // Not enough amount to return loan
 
