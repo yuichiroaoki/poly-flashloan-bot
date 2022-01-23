@@ -4,7 +4,7 @@ import chalk = require("chalk");
 import { BigNumber, ethers } from "ethers";
 import { chainId, protocols, diffAmount, loanAmount } from "./config";
 import { IRoute } from "./interfaces/main";
-import { ERC20Token, IToken } from "./constrants/addresses";
+import { ERC20Token, IToken } from "./constants/addresses";
 import { replaceTokenAddress } from "./utils";
 import { IProtocol } from "./interfaces/inch";
 import { sendRequest } from "./utils/request";

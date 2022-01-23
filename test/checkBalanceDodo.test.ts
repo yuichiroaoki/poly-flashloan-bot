@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import { getBigNumber } from "../src/utils";
-import { dodoV2Pool } from "../src/constrants/addresses";
-import { polygonChainID } from "../src/constrants/chainId";
+import { dodoV2Pool } from "../src/constants/addresses";
+import { polygonChainID } from "../src/constants/chainId";
 import * as DodoPool from "../src/abis/IDODO.json";
 import { Network } from "@ethersproject/networks";
 import { config as dotEnvConfig } from "dotenv";

@@ -6,7 +6,7 @@ import {
   dodoV2Pool,
   uniswapRouter,
   ERC20Token,
-} from "./constrants/addresses";
+} from "./constants/addresses";
 import { IProtocol } from "./interfaces/inch";
 import { Hop, IFlashloanRoute, IParams, Swap } from "./interfaces/main";
 import { getBigNumber, replaceTokenAddress } from "./utils/index";
