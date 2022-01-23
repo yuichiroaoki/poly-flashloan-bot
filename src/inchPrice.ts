@@ -2,11 +2,12 @@ import { config as dotEnvConfig } from "dotenv";
 dotEnvConfig();
 import chalk = require("chalk");
 import { BigNumber, ethers } from "ethers";
-import axios from "axios";
 import { chainId, protocols, diffAmount, loanAmount } from "./config";
 import { IRoute } from "./interfaces/main";
 import { ERC20Token, IToken } from "./constrants/addresses";
 import { replaceTokenAddress } from "./utils";
+import { IProtocol } from "./interfaces/inch";
+import { sendRequest } from "./utils/request";
 
 /**
  * Will get the 1inch API call URL for a trade
@@ -51,7 +52,14 @@ export async function checkArbitrage(
   toToken: IToken,
   updateRow: Function
 ): Promise<
-  [boolean, IRoute[] | null, IRoute[] | null, string?, string?, string?]
+  [
+    boolean,
+    IProtocol[][][] | null,
+    IProtocol[][][] | null,
+    string?,
+    string?,
+    string?
+  ]
 > {
   // Reset the row to default values.
   updateRow(
@@ -116,7 +124,7 @@ export async function checkArbitrage(
     return [false, null, null];
   }
 
-  const firstRoute = getRoutes(resultData1.protocols);
+  const firstProtocols = resultData1.protocols;
   const returnAmount = resultData1.toTokenAmount;
   const secondCallURL = get1inchQuoteCallUrl(
     chainId,
@@ -164,7 +172,7 @@ export async function checkArbitrage(
 
     return [false, null, null];
   }
-  const secondRoute = getRoutes(resultData2.protocols);
+  const secondProtocols = resultData2.protocols;
 
   const isProfitable = amountDiff.lt(
     ethers.BigNumber.from(resultData2.toTokenAmount)
@@ -211,8 +219,8 @@ export async function checkArbitrage(
 
   return [
     isProfitable,
-    firstRoute,
-    secondRoute,
+    firstProtocols,
+    secondProtocols,
     toTokenAmount.toFixed(2),
     chalkDifference(difference),
     chalkPercentage(percentage),
@@ -238,26 +246,6 @@ const chalkPercentage = (percentage: number) => {
     return chalk.green(fixedDiff);
   }
 };
-
-const sendRequest = async (url: string) => {
-  let response: any = await axios
-    .get(url)
-    .then((result) => {
-      return result.data;
-    })
-    .catch((error) => {
-      return error;
-    });
-
-  return response;
-};
-
-interface IProtocol {
-  name: string;
-  part: number;
-  fromTokenAddress: string;
-  toTokenAddress: string;
-}
 
 const getProtocols = (protocols: IProtocol[][][]): IRoute[] => {
   let route: IRoute[] = [];

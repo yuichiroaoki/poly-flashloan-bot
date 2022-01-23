@@ -46,3 +46,12 @@ export const protocols =
 export const slippage = 3; // percentage
 export const gasLimit = 15000000;
 export const gasPrice = 30; // gwei
+
+export const routeParts = [
+  [10000],
+  [8000, 2000],
+  [5000, 4000, 1000],
+  [5000, 3000, 1000, 1000],
+  [3000, 2000, 2000, 2000, 1000],
+  [2000, 2000, 2000, 2000, 1000, 1000],
+];

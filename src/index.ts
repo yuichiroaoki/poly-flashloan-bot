@@ -142,8 +142,8 @@ export const main = async () => {
 
         const [
           isProfitable,
-          firstRoutes,
-          secondRoutes,
+          firstProtocols,
+          secondProtocols,
           amount,
           difference,
           percentage,
@@ -170,16 +170,15 @@ export const main = async () => {
         renderTables();
 
         if (isProfitable && !isFlashLoaning) {
-          if (firstRoutes && secondRoutes) {
+          if (firstProtocols && secondProtocols) {
             isFlashLoaning = true;
 
             const startTime = Date.now();
 
             const tx = await flashloan(
               baseToken,
-              tradingToken,
-              firstRoutes,
-              secondRoutes
+              firstProtocols,
+              secondProtocols
             );
 
             pp.addRow({
@@ -190,12 +189,12 @@ export const main = async () => {
               difference: (difference || "").padStart(6),
               percentage: (percentage || "").padStart(4),
 
-              firstRoutes: firstRoutes
-                .map((route) => route.name.replace("POLYGON_", ""))
-                .join(" → "),
-              secondRoutes: secondRoutes
-                .map((route) => route.name.replace("POLYGON_", ""))
-                .join(" → "),
+              // firstRoutes: firstProtocols
+              //   .map((route) => route.name.replace("POLYGON_", ""))
+              //   .join(" → "),
+              // secondRoutes: secondRoutes
+              //   .map((route) => route.name.replace("POLYGON_", ""))
+              //   .join(" → "),
 
               txHash: tx.hash.padStart(66),
 

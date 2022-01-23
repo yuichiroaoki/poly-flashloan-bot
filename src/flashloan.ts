@@ -1,10 +1,16 @@
 import { ethers } from "ethers";
 import * as FlashloanJson from "./abis/Flashloan.json";
 import { flashloanAddress, loanAmount, gasLimit, gasPrice } from "./config";
-import { IToken, dodoV2Pool, uniswapRouter } from "./constrants/addresses";
-import { IFlashloanRoute, IParams, IRoute } from "./interfaces/main";
-import { getUniswapV3PoolFee } from "./uniswap/v3/fee";
-import { getBigNumber } from "./utils/index";
+import {
+  IToken,
+  dodoV2Pool,
+  uniswapRouter,
+  ERC20Token,
+} from "./constrants/addresses";
+import { IProtocol } from "./interfaces/inch";
+import { Hop, IFlashloanRoute, IParams, Swap } from "./interfaces/main";
+import { getBigNumber, replaceTokenAddress } from "./utils/index";
+import { getRouteParts, toInt } from "./utils/split";
 
 const maticProvider = new ethers.providers.JsonRpcProvider(
   process.env.ALCHEMY_POLYGON_RPC_URL
@@ -43,17 +49,16 @@ const getLendingPool = (borrowingToken: IToken) => {
 
 export const flashloan = async (
   tokenIn: IToken,
-  tokenOut: IToken,
-  firstRoutes: IRoute[],
-  secondRoutes: IRoute[]
+  firstProtocols: IProtocol[][][],
+  secondProtocols: IProtocol[][][]
 ) => {
   let params: IParams;
 
   params = {
     flashLoanPool: getLendingPool(tokenIn),
     loanAmount: getBigNumber(loanAmount, tokenIn.decimals),
-    firstRoutes: changeToFlashloanRoute(tokenIn, firstRoutes),
-    secondRoutes: changeToFlashloanRoute(tokenOut, secondRoutes),
+    firstRoutes: createRoutes(firstProtocols),
+    secondRoutes: createRoutes(secondProtocols),
   };
 
   return Flashloan.connect(signer).dodoFlashLoan(params, {
@@ -65,75 +70,61 @@ export const flashloan = async (
   // console.log("Polyscan URL: ", polyscanURL);
 };
 
-/**
- * change 1inch route to flashloan route
- * @param tokenIn token to borrow from dodo pool
- * @param routes
- * @returns
- */
-const changeToFlashloanRoute = (
-  tokenIn: IToken,
-  routes: IRoute[]
-): IFlashloanRoute[] => {
-  let flashloanRoutes: IFlashloanRoute[] = getInitialFlashloanRoutes(
-    tokenIn,
-    routes[0]
-  );
-  let previousProtocol = routes[0].name;
-  let currentIndex = 0;
-
-  for (const swap of routes) {
-    if (previousProtocol === swap.name) {
-      flashloanRoutes[currentIndex].path.push(swap.toTokenAddress);
-      if (swap.name == "POLYGON_UNISWAP_V3") {
-        flashloanRoutes[currentIndex].fee = getUniswapV3PoolFee(
-          flashloanRoutes[currentIndex].path
-        );
-      }
-    } else {
-      const lastPath = flashloanRoutes[currentIndex].path;
-      const fromToken = lastPath[lastPath.length - 1];
-      const path = [fromToken, swap.toTokenAddress];
-      const protocol = pickProtocol(swap.name);
-      flashloanRoutes.push({
-        path: path,
-        protocol: protocol,
-        pool: pickPoolAddress(protocol, swap),
-        fee: protocol === 2 ? getUniswapV3PoolFee(path) : [0],
-      });
-      currentIndex++;
-      previousProtocol = swap.name;
+const protocolNameToNumber = (protocolName: string): number => {
+  let protocolNumber = 0;
+  for (const name of Object.keys(uniswapRouter)) {
+    if (name === protocolName) {
+      return protocolNumber;
     }
+    protocolNumber++;
+  }
+  throw new Error(`Unknown protocol name: ${protocolName}`);
+};
+
+const createRoutes = (routes: IProtocol[][][]): IFlashloanRoute[] => {
+  let flashloanRoutes: IFlashloanRoute[] = [];
+  let i = 0;
+  const routeParts = getRouteParts(routes.length);
+  for (const hops of routes) {
+    const part = routeParts[i];
+    let route: IFlashloanRoute = {
+      part: part,
+      hops: toHops(hops),
+    };
+    flashloanRoutes.push(route);
+    i++;
   }
   return flashloanRoutes;
 };
 
-const getInitialFlashloanRoutes = (
-  tokenIn: IToken,
-  route: IRoute
-): IFlashloanRoute[] => {
-  const protocol = pickProtocol(route.name);
-  const firstRoute: IFlashloanRoute = {
-    path: [tokenIn.address],
-    protocol: pickProtocol(route.name),
-    pool: pickPoolAddress(protocol, route),
-    fee: [0],
-  };
-  return [firstRoute];
+const toSwaps = (results: IProtocol[]) => {
+  let swaps: Swap[] = [];
+  for (const result of results) {
+    swaps.push({
+      protocol: protocolNameToNumber(result.name),
+      part: toInt(result.part),
+    });
+  }
+  return swaps;
 };
 
-const pickProtocol = (protocol_name: string) => {
-  if (protocol_name === "POLYGON_UNISWAP_V3") {
-    return 2;
+const toHops = (results: IProtocol[][]) => {
+  let hops: Hop[] = [];
+  for (const result of results) {
+    const path = [result[0].fromTokenAddress, result[0].toTokenAddress].map(
+      (token) => {
+        return replaceTokenAddress(
+          token,
+          ERC20Token.MATIC.address,
+          ERC20Token.WMATIC.address
+        );
+      }
+    );
+    let hop: Hop = {
+      path: path,
+      swaps: toSwaps(result),
+    };
+    hops.push(hop);
   }
-  return 1;
-};
-
-const pickPoolAddress = (protocol: number, route: IRoute) => {
-  switch (protocol) {
-    case 1:
-      return uniswapRouter[route.name];
-    default:
-      return uniswapRouter.POLYGON_SUSHISWAP;
-  }
+  return hops;
 };
