@@ -15,9 +15,11 @@ const maticProvider = new ethers.providers.JsonRpcProvider(
 const inter = new ethers.utils.Interface(ABI.abi);
 
 const router = (route: IFlashloanRoute) => {
-  return `${findRouter(route.pool)}: ${findToken(route.path[0])} → ${findToken(
-    route.path[1]
-  )}`;
+  const protocols = route.hops.map((hop) => {
+    const tokenPair = `${findToken(hop.path[0])} → ${findToken(hop.path[1])}`;
+    return `${tokenPair}: ${hop.swaps}`;
+  });
+  return protocols;
 };
 
 export const main = async () => {
@@ -47,10 +49,10 @@ export const main = async () => {
       flashLoanPool: findPool(decodedInput.args.params.flashLoanPool),
       loanAmount: decodedInput.args.params.loanAmount.toNumber(),
       firstRoutes: decodedInput.args.params.firstRoutes.map(
-        (route: IFlashloanRoute) => router(route)
+        (route: IFlashloanRoute) => JSON.stringify(router(route))
       ),
       secondRoutes: decodedInput.args.params.secondRoutes.map(
-        (route: IFlashloanRoute) => router(route)
+        (route: IFlashloanRoute) => JSON.stringify(router(route))
       ),
     },
   });
