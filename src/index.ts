@@ -71,30 +71,38 @@ export const main = async () => {
     ],
   });
 
-  baseTokens.forEach(async (baseToken, x, array) => {
-    tradingTokens.forEach(async (tradingToken, y) => {
-      p.addRow({
-        index: x * array.length + y,
+  let idx = 0;
+  baseTokens.forEach(async (baseToken) => {
+    tradingTokens.forEach(async (tradingToken) => {
+      if (baseToken.address > tradingToken.address) {
+        p.addRow({
+          index: idx,
 
-        fromToken: (baseToken === tradingToken ? "" : baseToken.symbol).padEnd(
-          6
-        ),
-        toToken: (baseToken === tradingToken ? "" : tradingToken.symbol).padEnd(
-          6
-        ),
+          fromToken: (baseToken === tradingToken
+            ? ""
+            : baseToken.symbol
+          ).padEnd(6),
+          toToken: (baseToken === tradingToken
+            ? ""
+            : tradingToken.symbol
+          ).padEnd(6),
 
-        fromAmount: "".padStart(7),
-        toAmount: "".padStart(7),
+          fromAmount: "".padStart(7),
+          toAmount: "".padStart(7),
 
-        difference: "".padStart(7),
-        percentage: "".padStart(5),
+          difference: "".padStart(7),
+          percentage: "".padStart(5),
 
-        time: "".padStart(6),
-        timestamp: "".padStart(24),
-      });
+          time: "".padStart(6),
+          timestamp: "".padStart(24),
+        });
+
+        idx++;
+      }
     });
   });
 
+  idx = 0;
   const renderTables = () => {
     // console.clear();
     readline.cursorTo(process.stdout, 0, 0);
@@ -128,90 +136,100 @@ export const main = async () => {
     renderTables();
   }, renderInterval);
 
-  baseTokens.forEach(async (baseToken, x) => {
-    tradingTokens.forEach(async (tradingToken, y) => {
+  baseTokens.forEach(async (baseToken) => {
+    tradingTokens.forEach(async (tradingToken) => {
       // prevent swapping the same pair
-      if (baseToken.address <= tradingToken.address) return;
+      if (baseToken.address > tradingToken.address) {
+        const i = idx;
 
-      const i = x * baseTokens.length + y;
+        // await delay(interval / (baseTokens.length * tradingTokens.length) * i)
 
-      // await delay(interval / (baseTokens.length * tradingTokens.length) * i)
+        const func = async () => {
+          const startTime = Date.now();
 
-      const func = async () => {
-        const startTime = Date.now();
+          const [
+            isProfitable,
+            firstProtocols,
+            secondProtocols,
+            amount,
+            difference,
+            percentage,
+          ] = await checkArbitrage(
+            baseToken,
+            tradingToken,
 
-        const [
-          isProfitable,
-          firstProtocols,
-          secondProtocols,
-          amount,
-          difference,
-          percentage,
-        ] = await checkArbitrage(
-          baseToken,
-          tradingToken,
+            (text: any, options?: any) => {
+              text.time = chalkTime((Date.now() - startTime) / 100).padStart(6);
+              text.timestamp = new Date().toISOString();
 
-          (text: any, options?: any) => {
-            text.time = chalkTime((Date.now() - startTime) / 100).padStart(6);
-            text.timestamp = new Date().toISOString();
+              p.table.createColumnFromRow(text);
+              p.table.rows[i] = {
+                color: options?.color || p.table.rows[i].color,
+                separator:
+                  options?.separator !== undefined
+                    ? options?.separator
+                    : p.table.rows[i].separator,
+                text: { ...p.table.rows[i].text, ...text },
+              };
+            }
+          );
 
-            p.table.createColumnFromRow(text);
-            p.table.rows[i] = {
-              color: options?.color || p.table.rows[i].color,
-              separator:
-                options?.separator !== undefined
-                  ? options?.separator
-                  : p.table.rows[i].separator,
-              text: { ...p.table.rows[i].text, ...text },
-            };
+          renderTables();
+
+          if (isProfitable && !isFlashLoaning) {
+            if (firstProtocols && secondProtocols) {
+              isFlashLoaning = true;
+
+              const startTime = Date.now();
+
+              const tx = await flashloan(
+                baseToken,
+                firstProtocols,
+                secondProtocols
+              );
+
+              pp.addRow({
+                baseToken: baseToken.symbol.padEnd(6),
+                tradingToken: tradingToken.symbol.padEnd(6),
+
+                amount: (amount || "").padStart(7),
+                difference: (difference || "").padStart(6),
+                percentage: (percentage || "").padStart(4),
+
+                firstRoutes: firstProtocols.map((routes) =>
+                  routes.map((hops) =>
+                    hops
+                      .map((swap) => swap.name.replace("POLYGON_", ""))
+                      .join(" → ")
+                  )
+                ),
+                secondRoutes: secondProtocols.map((routes) =>
+                  routes.map((hops) =>
+                    hops
+                      .map((swap) => swap.name.replace("POLYGON_", ""))
+                      .join(" → ")
+                  )
+                ),
+
+                txHash: tx.hash.padStart(66),
+
+                time: chalkTime((Date.now() - startTime) / 100).padStart(6),
+                timestamp: new Date().toISOString(),
+              });
+
+              isFlashLoaning = false;
+
+              renderTables();
+            }
           }
-        );
+        };
 
-        renderTables();
+        func();
 
-        if (isProfitable && !isFlashLoaning) {
-          if (firstProtocols && secondProtocols) {
-            isFlashLoaning = true;
+        setInterval(func, interval);
 
-            const startTime = Date.now();
-
-            const tx = await flashloan(
-              baseToken,
-              firstProtocols,
-              secondProtocols
-            );
-
-            pp.addRow({
-              baseToken: baseToken.symbol.padEnd(6),
-              tradingToken: tradingToken.symbol.padEnd(6),
-
-              amount: (amount || "").padStart(7),
-              difference: (difference || "").padStart(6),
-              percentage: (percentage || "").padStart(4),
-
-              // firstRoutes: firstProtocols
-              //   .map((route) => route.name.replace("POLYGON_", ""))
-              //   .join(" → "),
-              // secondRoutes: secondRoutes
-              //   .map((route) => route.name.replace("POLYGON_", ""))
-              //   .join(" → "),
-
-              txHash: tx.hash.padStart(66),
-
-              time: chalkTime((Date.now() - startTime) / 100).padStart(6),
-              timestamp: new Date().toISOString(),
-            });
-
-            isFlashLoaning = false;
-
-            renderTables();
-          }
-        }
-      };
-
-      func();
-
-      setInterval(func, interval);
+        idx++;
+      }
     });
   });
 };
