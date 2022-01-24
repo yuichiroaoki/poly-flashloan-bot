@@ -33,11 +33,11 @@ export const tradingTokens = [
 
 /**
  * @type {string} public flashloan contract address
- * Polyscan: https://polygonscan.com/address/0xb6c4448386c4ecf4e5eab057351f8a6a8a465a0d
+ * Polyscan: https://polygonscan.com/address/0x568a23ad22041683468cd1d3a6968d7e7dc20d40
  * if you have deployed your own contract, you can use it instead of the default one
  */
 export const flashloanAddress: string =
-  "0xb6C4448386c4ECF4e5eAB057351f8a6A8A465a0D";
+  "0x568a23AD22041683468CD1D3a6968D7E7dC20D40";
 
 // protocols the bot will use
 export const protocols =
