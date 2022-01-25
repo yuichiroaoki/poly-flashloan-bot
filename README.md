@@ -1,5 +1,7 @@
 # Poly Flashloan Bot
 
+![test](https://github.com/yuichiroaoki/poly-flashloan-bot/actions/workflows/node.js.yaml/badge.svg)
+
 An open source flashloan bot on polygon network
 
 ## Prerequisites
