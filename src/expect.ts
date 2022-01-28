@@ -58,7 +58,7 @@ const expectPriceOnDex = async (
   tokenIn: string,
   tokenOut: string
 ) => {
-  if (amountIn.eq(getBigNumber(0))) {
+  if (!amountIn || amountIn.eq(getBigNumber(0))) {
     return getBigNumber(0);
   }
   if (protocol === 0) {

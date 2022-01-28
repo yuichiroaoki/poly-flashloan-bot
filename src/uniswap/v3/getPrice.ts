@@ -1,6 +1,7 @@
 import { BigNumber, ethers } from "ethers";
 import { abi as QuoterABI } from "@uniswap/v3-periphery/artifacts/contracts/lens/Quoter.sol/Quoter.json";
 import { config as dotEnvConfig } from "dotenv";
+import { getBigNumber } from "../../utils";
 dotEnvConfig();
 
 const maticProvider = new ethers.providers.JsonRpcProvider(
@@ -14,12 +15,12 @@ const quoterContract = new ethers.Contract(
   maticProvider
 );
 
-export async function getPriceOnUniV3(
+export const getPriceOnUniV3 = async (
   tokenIn: string,
   tokenOut: string,
   amountIn: BigNumber,
   fee: number
-) {
+): Promise<BigNumber> => {
   const quotedAmountOut = await quoterContract.callStatic.quoteExactInputSingle(
     tokenIn,
     tokenOut,
@@ -27,5 +28,8 @@ export async function getPriceOnUniV3(
     amountIn.toString(),
     0
   );
+  if (!ethers.BigNumber.isBigNumber(quotedAmountOut)) {
+    return getBigNumber(0);
+  }
   return quotedAmountOut;
-}
+};
