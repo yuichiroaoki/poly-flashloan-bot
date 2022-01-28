@@ -27,6 +27,5 @@ export async function getPriceOnUniV3(
     amountIn.toString(),
     0
   );
-  console.log("The quoted amount out is", quotedAmountOut.toString());
-  console.log("block number", await maticProvider.getBlockNumber());
+  return quotedAmountOut;
 }
