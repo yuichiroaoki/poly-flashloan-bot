@@ -53,3 +53,7 @@ export const findPool = (pool: string) => {
   }
   return "UNKNOWN";
 };
+
+export const findRouterFromProtocol = (protocol: number) => {
+  return uniswapRouter[Object.keys(uniswapRouter)[protocol]];
+};
