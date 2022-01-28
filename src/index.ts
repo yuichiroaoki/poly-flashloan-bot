@@ -121,9 +121,9 @@ export const main = async () => {
       return "";
     }
     const timeStr = time.toFixed(1) + "s";
-    if (time < 30) {
+    if (time < 3) {
       return timeStr;
-    } else if (time < 60) {
+    } else if (time < 6) {
       return chalk.yellow(timeStr);
     } else {
       return chalk.red(timeStr);
@@ -159,7 +159,9 @@ export const main = async () => {
             tradingToken,
 
             (text: any, options?: any) => {
-              text.time = chalkTime((Date.now() - startTime) / 100).padStart(6);
+              text.time = chalkTime((Date.now() - startTime) / 1000).padStart(
+                6
+              );
               text.timestamp = new Date().toISOString();
 
               p.table.createColumnFromRow(text);
@@ -213,7 +215,7 @@ export const main = async () => {
 
                 txHash: tx.hash.padStart(66),
 
-                time: chalkTime((Date.now() - startTime) / 100).padStart(6),
+                time: chalkTime((Date.now() - startTime) / 1000).padStart(6),
                 timestamp: new Date().toISOString(),
               });
 
