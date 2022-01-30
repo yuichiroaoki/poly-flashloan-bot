@@ -1,9 +1,20 @@
 import { config as dotEnvConfig } from "dotenv";
 dotEnvConfig();
 import { checkArbitrage } from "./inchPrice";
-import { baseTokens, interval, tradingTokens, renderInterval } from "./config";
-import { flashloan } from "./flashloan";
+import {
+  baseTokens,
+  interval,
+  tradingTokens,
+  renderInterval,
+  loanAmount,
+  diffAmount,
+} from "./config";
+import { createRoutes, flashloan } from "./flashloan";
 import chalk = require("chalk");
+import { expectAmountOut } from "./expect";
+import { getBigNumber } from "./utils";
+import { ethers } from "ethers";
+import { chalkDifference, chalkPercentage, chalkTime } from "./utils/chalk";
 
 const readline = require("readline");
 const { Table } = require("console-table-printer");
@@ -116,20 +127,6 @@ export const main = async () => {
 
   renderTables();
 
-  const chalkTime = (time: number) => {
-    if (time < 0.1) {
-      return "";
-    }
-    const timeStr = time.toFixed(1) + "s";
-    if (time < 3) {
-      return timeStr;
-    } else if (time < 6) {
-      return chalk.yellow(timeStr);
-    } else {
-      return chalk.red(timeStr);
-    }
-  };
-
   // const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
   setInterval(() => {
@@ -147,81 +144,108 @@ export const main = async () => {
         const func = async () => {
           const startTime = Date.now();
 
-          const [
-            isProfitable,
-            firstProtocols,
-            secondProtocols,
-            amount,
-            difference,
-            percentage,
-          ] = await checkArbitrage(
-            baseToken,
-            tradingToken,
+          const updateRow = (text: any, options?: any) => {
+            text.time = chalkTime((Date.now() - startTime) / 1000).padStart(6);
+            text.timestamp = new Date().toISOString();
 
-            (text: any, options?: any) => {
-              text.time = chalkTime((Date.now() - startTime) / 1000).padStart(
-                6
-              );
-              text.timestamp = new Date().toISOString();
+            p.table.createColumnFromRow(text);
+            p.table.rows[i] = {
+              color: options?.color || p.table.rows[i].color,
+              separator:
+                options?.separator !== undefined
+                  ? options?.separator
+                  : p.table.rows[i].separator,
+              text: { ...p.table.rows[i].text, ...text },
+            };
+          };
 
-              p.table.createColumnFromRow(text);
-              p.table.rows[i] = {
-                color: options?.color || p.table.rows[i].color,
-                separator:
-                  options?.separator !== undefined
-                    ? options?.separator
-                    : p.table.rows[i].separator,
-                text: { ...p.table.rows[i].text, ...text },
-              };
-            }
-          );
+          const [isProfitable, firstProtocols, secondProtocols] =
+            await checkArbitrage(baseToken, tradingToken, updateRow);
 
           renderTables();
 
           if (isProfitable && !isFlashLoaning) {
             if (firstProtocols && secondProtocols) {
-              isFlashLoaning = true;
+              const firstRoutes = createRoutes(firstProtocols);
+              const secondRoutes = createRoutes(secondProtocols);
 
-              const startTime = Date.now();
-
-              const tx = await flashloan(
-                baseToken,
-                firstProtocols,
-                secondProtocols
+              const bnLoanAmount = getBigNumber(loanAmount, baseToken.decimals);
+              // estimate the token amount you get atfer swaps
+              const bnExpectedAmountOut = await expectAmountOut(
+                firstRoutes,
+                bnLoanAmount
+              ).then((firstAmountOut) =>
+                expectAmountOut(secondRoutes, firstAmountOut)
               );
+              // check if the expected amount is larger than the loan amount
+              const isOpportunity = bnLoanAmount
+                .add(getBigNumber(diffAmount, baseToken.decimals))
+                .lt(bnExpectedAmountOut);
 
-              pp.addRow({
-                baseToken: baseToken.symbol.padEnd(6),
-                tradingToken: tradingToken.symbol.padEnd(6),
-
-                amount: (amount || "").padStart(7),
-                difference: (difference || "").padStart(6),
-                percentage: (percentage || "").padStart(4),
-
-                firstRoutes: firstProtocols.map((routes) =>
-                  routes.map((hops) =>
-                    hops
-                      .map((swap) => swap.name.replace("POLYGON_", ""))
-                      .join(" → ")
+              if (isOpportunity) {
+                isFlashLoaning = true;
+                const stExpectedAmountOut = Number(
+                  ethers.utils.formatUnits(
+                    bnExpectedAmountOut.sub(bnLoanAmount),
+                    baseToken.decimals
                   )
-                ),
-                secondRoutes: secondProtocols.map((routes) =>
-                  routes.map((hops) =>
-                    hops
-                      .map((swap) => swap.name.replace("POLYGON_", ""))
-                      .join(" → ")
-                  )
-                ),
+                ).toFixed(2);
+                const difference =
+                  Number(stExpectedAmountOut) - Number(loanAmount);
+                const percentage = (difference / Number(loanAmount)) * 100;
+                updateRow(
+                  {
+                    amount: (stExpectedAmountOut || "").padStart(7),
+                    difference: (chalkDifference(difference) || "").padStart(6),
+                    percentage: (chalkPercentage(percentage) || "").padStart(4),
+                    log: "",
+                  },
+                  {
+                    color: "green",
+                  }
+                );
 
-                txHash: tx.hash.padStart(66),
+                const startTime = Date.now();
 
-                time: chalkTime((Date.now() - startTime) / 1000).padStart(6),
-                timestamp: new Date().toISOString(),
-              });
+                const tx = await flashloan(
+                  baseToken,
+                  firstRoutes,
+                  secondRoutes
+                );
 
-              isFlashLoaning = false;
+                pp.addRow({
+                  baseToken: baseToken.symbol.padEnd(6),
+                  tradingToken: tradingToken.symbol.padEnd(6),
 
-              renderTables();
+                  amount: (stExpectedAmountOut || "").padStart(7),
+                  difference: (chalkDifference(difference) || "").padStart(6),
+                  percentage: (chalkPercentage(percentage) || "").padStart(4),
+
+                  firstRoutes: firstProtocols.map((routes) =>
+                    routes.map((hops) =>
+                      hops
+                        .map((swap) => swap.name.replace("POLYGON_", ""))
+                        .join(" → ")
+                    )
+                  ),
+                  secondRoutes: secondProtocols.map((routes) =>
+                    routes.map((hops) =>
+                      hops
+                        .map((swap) => swap.name.replace("POLYGON_", ""))
+                        .join(" → ")
+                    )
+                  ),
+
+                  txHash: tx.hash.padStart(66),
+
+                  time: chalkTime((Date.now() - startTime) / 1000).padStart(6),
+                  timestamp: new Date().toISOString(),
+                });
+
+                isFlashLoaning = false;
+
+                renderTables();
+              }
             }
           }
         };

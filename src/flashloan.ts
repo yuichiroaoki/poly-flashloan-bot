@@ -49,16 +49,16 @@ const getLendingPool = (borrowingToken: IToken) => {
 
 export const flashloan = async (
   tokenIn: IToken,
-  firstProtocols: IProtocol[][][],
-  secondProtocols: IProtocol[][][]
+  firstRoutes: IFlashloanRoute[],
+  secondRoutes: IFlashloanRoute[]
 ) => {
   let params: IParams;
 
   params = {
     flashLoanPool: getLendingPool(tokenIn),
     loanAmount: getBigNumber(loanAmount, tokenIn.decimals),
-    firstRoutes: createRoutes(firstProtocols),
-    secondRoutes: createRoutes(secondProtocols),
+    firstRoutes: firstRoutes,
+    secondRoutes: secondRoutes,
   };
 
   return Flashloan.connect(signer).dodoFlashLoan(params, {
@@ -81,7 +81,7 @@ const protocolNameToNumber = (protocolName: string): number => {
   throw new Error(`Unknown protocol name: ${protocolName}`);
 };
 
-const createRoutes = (routes: IProtocol[][][]): IFlashloanRoute[] => {
+export const createRoutes = (routes: IProtocol[][][]): IFlashloanRoute[] => {
   let flashloanRoutes: IFlashloanRoute[] = [];
   let i = 0;
   const routeParts = getRouteParts(routes.length);
