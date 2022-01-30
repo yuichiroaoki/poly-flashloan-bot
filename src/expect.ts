@@ -45,7 +45,7 @@ const getSwapsAmountOut = async (
     const part = swap.part;
     const amountIn = splitLoanAmount(totalAmountIn, part);
     const price = await expectPriceOnDex(protocol, amountIn, path[0], path[1]);
-    if (price) {
+    if (ethers.BigNumber.isBigNumber(price)) {
       amountOut = amountOut.add(price);
     }
   }

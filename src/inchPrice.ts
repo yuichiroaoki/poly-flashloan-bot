@@ -1,6 +1,5 @@
 import { config as dotEnvConfig } from "dotenv";
 dotEnvConfig();
-import chalk = require("chalk");
 import { BigNumber, ethers } from "ethers";
 import { chainId, protocols, diffAmount, loanAmount } from "./config";
 import { IRoute } from "./interfaces/main";
@@ -8,6 +7,7 @@ import { ERC20Token, IToken } from "./constants/addresses";
 import { replaceTokenAddress } from "./utils";
 import { IProtocol } from "./interfaces/inch";
 import { sendRequest } from "./utils/request";
+import { chalkDifference, chalkPercentage } from "./utils/chalk";
 
 /**
  * Will get the 1inch API call URL for a trade
@@ -51,16 +51,7 @@ export async function checkArbitrage(
   fromToken: IToken,
   toToken: IToken,
   updateRow: Function
-): Promise<
-  [
-    boolean,
-    IProtocol[][][] | null,
-    IProtocol[][][] | null,
-    string?,
-    string?,
-    string?
-  ]
-> {
+): Promise<[boolean, IProtocol[][][] | null, IProtocol[][][] | null, string?]> {
   // Reset the row to default values.
   updateRow(
     {
@@ -222,30 +213,8 @@ export async function checkArbitrage(
     firstProtocols,
     secondProtocols,
     toTokenAmount.toFixed(2),
-    chalkDifference(difference),
-    chalkPercentage(percentage),
   ];
 }
-
-const chalkDifference = (difference: number) => {
-  const fixedDiff = difference.toFixed(1);
-  if (difference < 0) {
-    return chalk.red(fixedDiff);
-  } else if (difference < diffAmount) {
-    return chalk.yellow(fixedDiff);
-  } else {
-    return chalk.green(fixedDiff);
-  }
-};
-
-const chalkPercentage = (percentage: number) => {
-  const fixedDiff = percentage.toFixed(1);
-  if (percentage < 0) {
-    return chalk.red(fixedDiff);
-  } else {
-    return chalk.green(fixedDiff);
-  }
-};
 
 const getProtocols = (protocols: IProtocol[][][]): IRoute[] => {
   let route: IRoute[] = [];
