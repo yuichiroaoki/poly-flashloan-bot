@@ -184,26 +184,20 @@ export const main = async () => {
 
               if (isOpportunity) {
                 isFlashLoaning = true;
-                const stExpectedAmountOut = Number(
+                const stDifference = Number(
                   ethers.utils.formatUnits(
                     bnExpectedAmountOut.sub(bnLoanAmount),
                     baseToken.decimals
                   )
                 ).toFixed(2);
-                const difference =
-                  Number(stExpectedAmountOut) - Number(loanAmount);
+                const amount = Number(
+                  ethers.utils.formatUnits(
+                    bnExpectedAmountOut,
+                    baseToken.decimals
+                  )
+                ).toFixed(2);
+                const difference = Number(stDifference);
                 const percentage = (difference / Number(loanAmount)) * 100;
-                updateRow(
-                  {
-                    amount: (stExpectedAmountOut || "").padStart(7),
-                    difference: (chalkDifference(difference) || "").padStart(6),
-                    percentage: (chalkPercentage(percentage) || "").padStart(4),
-                    log: "",
-                  },
-                  {
-                    color: "green",
-                  }
-                );
 
                 const startTime = Date.now();
 
@@ -217,7 +211,7 @@ export const main = async () => {
                   baseToken: baseToken.symbol.padEnd(6),
                   tradingToken: tradingToken.symbol.padEnd(6),
 
-                  amount: (stExpectedAmountOut || "").padStart(7),
+                  amount: (amount || "").padStart(7),
                   difference: (chalkDifference(difference) || "").padStart(6),
                   percentage: (chalkPercentage(percentage) || "").padStart(4),
 
