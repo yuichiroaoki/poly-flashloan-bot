@@ -16,7 +16,7 @@ describe("Uniswap price check", () => {
             test(`${baseToken.symbol} -> ${tradingToken.symbol}`, async () => {
               const price = await expectPriceOnDex(
                 i,
-                getBigNumber(1, 6),
+                getBigNumber(1, baseToken.decimals),
                 baseToken.address,
                 tradingToken.address
               );
