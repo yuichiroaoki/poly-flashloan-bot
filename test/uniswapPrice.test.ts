@@ -10,9 +10,9 @@ describe("Uniswap price check", () => {
     const routerAddress = findRouterFromProtocol(i);
     const routerName = findRouter(routerAddress);
     describe(routerName, () => {
-      for (let i = 0; i < Object.keys(uniswapRouter).length; i++) {
-        baseTokens.forEach(async (baseToken) => {
-          tradingTokens.forEach(async (tradingToken) => {
+      baseTokens.forEach(async (baseToken) => {
+        tradingTokens.forEach(async (tradingToken) => {
+          if (baseToken.address > tradingToken.address) {
             test(`${baseToken.symbol} -> ${tradingToken.symbol}`, async () => {
               const price = await expectPriceOnDex(
                 i,
@@ -22,9 +22,9 @@ describe("Uniswap price check", () => {
               );
               expect(price.gt(getBigNumber(0))).toBe(true);
             });
-          });
+          }
         });
-      }
+      });
     });
   }
 });
