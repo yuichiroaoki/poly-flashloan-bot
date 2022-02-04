@@ -1,5 +1,5 @@
 import { ERC20Token } from "../src/constants/addresses";
-import { getUniswapV3PoolFee } from "../src/uniswap/v3/fee";
+import { getUniswapV3PoolFee } from "../src/price/uniswap/v3/fee";
 
 describe("UniswapV3 pool fee test", () => {
   describe("Check if it returns the correct a pool fee.", () => {

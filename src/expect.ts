@@ -52,7 +52,7 @@ const getSwapsAmountOut = async (
   return amountOut;
 };
 
-const expectPriceOnDex = async (
+export const expectPriceOnDex = async (
   protocol: number,
   amountIn: BigNumber,
   tokenIn: string,
