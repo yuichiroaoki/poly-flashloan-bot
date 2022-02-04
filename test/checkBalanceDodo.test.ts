@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import { getBigNumber } from "../src/utils";
-import { dodoV2Pool } from "../src/constants/addresses";
+import { dodoV2Pool, ERC20Token } from "../src/constants/addresses";
 import { polygonChainID } from "../src/constants/chainId";
 import * as DodoPool from "../src/abis/IDODO.json";
 import { Network } from "@ethersproject/networks";
@@ -20,8 +20,18 @@ describe("DODO pool check", () => {
     for (const [name, poolAddr] of Object.entries(dodoV2Pool)) {
       test(name, async () => {
         const dodoPool = new ethers.Contract(poolAddr, DodoPool.abi, provider);
-        expect((await dodoPool._BASE_RESERVE_()).gt(getBigNumber(10000, 6)));
-        expect((await dodoPool._QUOTE_RESERVE_()).gt(getBigNumber(10000, 6)));
+        if (poolAddr !== dodoV2Pool.WBTC_USDC) {
+          expect(
+            (await dodoPool._BASE_RESERVE_()).gt(getBigNumber(10000, 6))
+          ).toBe(true);
+        } else {
+          expect((await dodoPool._BASE_RESERVE_()).gt(getBigNumber(1, 8))).toBe(
+            true
+          );
+        }
+        expect(
+          (await dodoPool._QUOTE_RESERVE_()).gt(getBigNumber(10000, 6))
+        ).toBe(true);
       });
     }
   });

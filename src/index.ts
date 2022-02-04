@@ -1,6 +1,6 @@
 import { config as dotEnvConfig } from "dotenv";
 dotEnvConfig();
-import { checkArbitrage } from "./inchPrice";
+import { checkArbitrage } from "./price/1inch";
 import {
   baseTokens,
   interval,
@@ -10,14 +10,12 @@ import {
   diffAmount,
 } from "./config";
 import { createRoutes, flashloan } from "./flashloan";
-import chalk = require("chalk");
 import { expectAmountOut } from "./expect";
 import { getBigNumber } from "./utils";
 import { ethers } from "ethers";
 import { chalkDifference, chalkPercentage, chalkTime } from "./utils/chalk";
-
-const readline = require("readline");
-const { Table } = require("console-table-printer");
+import { flashloanTable, priceTable } from "./consoleUI/table";
+import { initPriceTable, renderTables } from "./consoleUI";
 
 export const main = async () => {
   console.clear();
@@ -26,111 +24,18 @@ export const main = async () => {
 
   const [maxX, _] = process.stdout.getWindowSize();
 
-  const p = new Table({
-    // title: "Quotes",
-    columns: [
-      { name: "index", title: "#", alignment: "right" },
-
-      { name: "fromToken", title: "From", alignment: "left" },
-      { name: "fromAmount", title: "Amount", alignment: "right" },
-
-      { name: "toToken", title: "To", alignment: "left" },
-      { name: "toAmount", title: "Amount", alignment: "right" },
-
-      { name: "difference", title: "±", alignment: "right" },
-      { name: "percentage", title: "%", alignment: "right" },
-
-      { name: "log", title: "Log", alignment: "left", maxLen: maxX - 101 },
-
-      { name: "time", title: "Time", alignment: "right" },
-      { name: "timestamp", title: "Timestamp", alignment: "right" },
-    ],
-  });
-
-  const pp = new Table({
-    title: "Flash Loans",
-    columns: [
-      { name: "baseToken", title: "From", alignment: "left" },
-      { name: "tradingToken", title: "To", alignment: "left" },
-
-      { name: "amount", title: "Amount", alignment: "right" },
-
-      { name: "difference", title: "±", alignment: "right" },
-      { name: "percentage", title: "%", alignment: "right" },
-
-      {
-        name: "firstRoutes",
-        title: "First Routes",
-        alignment: "left",
-        maxLen: maxX / 2 - 78,
-      },
-      {
-        name: "secondRoutes",
-        title: "Second Routes",
-        alignment: "left",
-        maxLen: maxX / 2 - 79,
-      },
-
-      {
-        name: "txHash",
-        title: "Transaction Hash",
-        alignment: "left",
-      },
-
-      { name: "time", title: "Time", alignment: "right" },
-      { name: "timestamp", title: "Timestamp", alignment: "right" },
-    ],
-  });
+  const p = priceTable(maxX);
+  const pp = flashloanTable(maxX);
 
   let idx = 0;
-  baseTokens.forEach(async (baseToken) => {
-    tradingTokens.forEach(async (tradingToken) => {
-      if (baseToken.address > tradingToken.address) {
-        p.addRow({
-          index: idx,
-
-          fromToken: (baseToken === tradingToken
-            ? ""
-            : baseToken.symbol
-          ).padEnd(6),
-          toToken: (baseToken === tradingToken
-            ? ""
-            : tradingToken.symbol
-          ).padEnd(6),
-
-          fromAmount: "".padStart(7),
-          toAmount: "".padStart(7),
-
-          difference: "".padStart(7),
-          percentage: "".padStart(5),
-
-          time: "".padStart(6),
-          timestamp: "".padStart(24),
-        });
-
-        idx++;
-      }
-    });
-  });
+  initPriceTable(p, idx);
 
   idx = 0;
-  const renderTables = () => {
-    // console.clear();
-    readline.cursorTo(process.stdout, 0, 0);
-
-    p.printTable();
-
-    if (pp.table.rows.length > 0) {
-      pp.printTable();
-    }
-  };
-
-  renderTables();
-
+  renderTables(p, pp);
   // const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
   setInterval(() => {
-    renderTables();
+    renderTables(p, pp);
   }, renderInterval);
 
   baseTokens.forEach(async (baseToken) => {
@@ -162,7 +67,7 @@ export const main = async () => {
           const [isProfitable, firstProtocols, secondProtocols] =
             await checkArbitrage(baseToken, tradingToken, updateRow);
 
-          renderTables();
+          renderTables(p, pp);
 
           if (isProfitable && !isFlashLoaning) {
             if (firstProtocols && secondProtocols) {
@@ -238,7 +143,7 @@ export const main = async () => {
 
                 isFlashLoaning = false;
 
-                renderTables();
+                renderTables(p, pp);
               }
             }
           }

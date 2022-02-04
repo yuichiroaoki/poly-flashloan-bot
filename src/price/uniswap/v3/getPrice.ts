@@ -1,7 +1,7 @@
 import { BigNumber, ethers } from "ethers";
 import { abi as QuoterABI } from "@uniswap/v3-periphery/artifacts/contracts/lens/Quoter.sol/Quoter.json";
 import { config as dotEnvConfig } from "dotenv";
-import { getBigNumber } from "../../utils";
+import { getBigNumber } from "../../../utils";
 dotEnvConfig();
 
 const maticProvider = new ethers.providers.JsonRpcProvider(

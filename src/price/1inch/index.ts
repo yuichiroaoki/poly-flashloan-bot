@@ -1,44 +1,14 @@
 import { config as dotEnvConfig } from "dotenv";
 dotEnvConfig();
 import { BigNumber, ethers } from "ethers";
-import { chainId, protocols, diffAmount, loanAmount } from "./config";
-import { IRoute } from "./interfaces/main";
-import { ERC20Token, IToken } from "./constants/addresses";
-import { replaceTokenAddress } from "./utils";
-import { IProtocol } from "./interfaces/inch";
-import { sendRequest } from "./utils/request";
-import { chalkDifference, chalkPercentage } from "./utils/chalk";
-
-/**
- * Will get the 1inch API call URL for a trade
- * @param chainId chain id of the network
- * @param fromTokenAddress token address of the token you want to sell
- * @param toTokenAddress token address of the token you want to buy
- * @param amount amount of the token you want to sell
- * @returns call URL for 1inch API
- */
-function get1inchQuoteCallUrl(
-  chainId: number,
-  fromTokenAddress: string,
-  toTokenAddress: string,
-  amount: BigNumber
-): string {
-  const callURL =
-    "https://api.1inch.exchange/v4.0/" +
-    chainId +
-    "/quote?" +
-    "fromTokenAddress=" +
-    fromTokenAddress +
-    "&toTokenAddress=" +
-    toTokenAddress +
-    "&amount=" +
-    amount.toString() +
-    "&mainRouteParts=50" +
-    "&protocols=" +
-    protocols;
-
-  return callURL;
-}
+import { chainId, protocols, diffAmount, loanAmount } from "../../config";
+import { IRoute } from "../../interfaces/main";
+import { ERC20Token, IToken } from "../../constants/addresses";
+import { replaceTokenAddress } from "../../utils";
+import { IProtocol } from "../../interfaces/inch";
+import { sendRequest } from "../../utils/request";
+import { chalkDifference, chalkPercentage } from "../../utils/chalk";
+import { get1inchQuoteCallUrl } from "./url";
 
 /**
  * Will check if there's an arbitrage opportunity using the 1inch API

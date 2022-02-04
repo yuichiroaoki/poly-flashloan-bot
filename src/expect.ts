@@ -1,8 +1,8 @@
 import { BigNumber, ethers } from "ethers";
 import { Hop, IFlashloanRoute, Swap } from "./interfaces/main";
-import { getPriceOnUniV2 } from "./uniswap/v2/getPrice";
-import { getUniswapV3PoolFee } from "./uniswap/v3/fee";
-import { getPriceOnUniV3 } from "./uniswap/v3/getPrice";
+import { getPriceOnUniV2 } from "./price/uniswap/v2/getPrice";
+import { getUniswapV3PoolFee } from "./price/uniswap/v3/fee";
+import { getPriceOnUniV3 } from "./price/uniswap/v3/getPrice";
 import { findRouterFromProtocol, getBigNumber } from "./utils";
 import { splitLoanAmount } from "./utils/split";
 
@@ -52,7 +52,7 @@ const getSwapsAmountOut = async (
   return amountOut;
 };
 
-const expectPriceOnDex = async (
+export const expectPriceOnDex = async (
   protocol: number,
   amountIn: BigNumber,
   tokenIn: string,
