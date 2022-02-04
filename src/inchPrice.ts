@@ -33,7 +33,6 @@ function get1inchQuoteCallUrl(
     toTokenAddress +
     "&amount=" +
     amount.toString() +
-    "&mainRouteParts=50" +
     "&protocols=" +
     protocols;
 
