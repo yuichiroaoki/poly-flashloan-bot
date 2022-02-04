@@ -49,6 +49,10 @@ export const findPool = (pool: string) => {
   return "UNKNOWN";
 };
 
+/**
+ * @param protocol
+ * @returns router address
+ */
 export const findRouterFromProtocol = (protocol: number) => {
   return uniswapRouter[Object.keys(uniswapRouter)[protocol]];
 };
