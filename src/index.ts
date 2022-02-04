@@ -1,6 +1,6 @@
 import { config as dotEnvConfig } from "dotenv";
 dotEnvConfig();
-import { checkArbitrage } from "./inchPrice";
+import { checkArbitrage } from "./price/1inch";
 import {
   baseTokens,
   interval,
