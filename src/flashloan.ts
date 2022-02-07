@@ -9,7 +9,12 @@ import {
 } from "./constants/addresses";
 import { IProtocol } from "./interfaces/inch";
 import { Hop, IFlashloanRoute, IParams, Swap } from "./interfaces/main";
-import { getBigNumber, replaceTokenAddress } from "./utils/index";
+import { getUniswapV3PoolFee } from "./price/uniswap/v3/fee";
+import {
+  findRouterFromProtocol,
+  getBigNumber,
+  replaceTokenAddress,
+} from "./utils/index";
 import { getRouteParts, toInt } from "./utils/split";
 
 const maticProvider = new ethers.providers.JsonRpcProvider(
@@ -100,9 +105,15 @@ export const createRoutes = (routes: IProtocol[][][]): IFlashloanRoute[] => {
 const toSwaps = (results: IProtocol[]) => {
   let swaps: Swap[] = [];
   for (const result of results) {
+    const protocol = protocolNameToNumber(result.name);
     swaps.push({
-      protocol: protocolNameToNumber(result.name),
+      protocol: protocol,
       part: toInt(result.part),
+      data: getProtocolData(
+        protocol,
+        result.fromTokenAddress,
+        result.toTokenAddress
+      ),
     });
   }
   return swaps;
@@ -127,4 +138,27 @@ const toHops = (results: IProtocol[][]) => {
     hops.push(hop);
   }
   return hops;
+};
+
+const getProtocolData = (
+  protocol: number,
+  fromToken: string,
+  toToken: string
+) => {
+  if (protocol === 0) {
+    // uniswap V3
+    return ethers.utils.defaultAbiCoder.encode(
+      ["address", "uint24"],
+      [
+        findRouterFromProtocol(protocol),
+        getUniswapV3PoolFee([fromToken, toToken]),
+      ]
+    );
+  } else {
+    // uniswap V2
+    return ethers.utils.defaultAbiCoder.encode(
+      ["address"],
+      [findRouterFromProtocol(protocol)]
+    );
+  }
 };
