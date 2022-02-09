@@ -1,7 +1,7 @@
 import { config as dotEnvConfig } from "dotenv";
 dotEnvConfig();
-import { BigNumber, ethers } from "ethers";
-import { chainId, protocols, diffAmount, loanAmount } from "../../config";
+import { ethers } from "ethers";
+import { chainId, diffAmount, loanAmount } from "../../config";
 import { IRoute } from "../../interfaces/main";
 import { ERC20Token, IToken } from "../../constants/addresses";
 import { replaceTokenAddress } from "../../utils";
@@ -55,9 +55,7 @@ export async function checkArbitrage(
   });
 
   const resultData1 = await sendRequest(firstCallURL);
-  if (!!resultData1.isAxiosError) {
-    const e = resultData1;
-
+  if (!resultData1.data) {
     updateRow(
       {
         fromToken: fromToken.symbol.padEnd(6),
@@ -67,15 +65,7 @@ export async function checkArbitrage(
           .toFixed(2)
           .padStart(7),
 
-        log:
-          e.response !== undefined
-            ? e.response.status +
-              ": " +
-              e.response.statusText +
-              " (" +
-              e.response.data.error +
-              ")"
-            : "",
+        log: `${resultData1.errorMessage}`,
       },
       {
         color: "red",
@@ -85,8 +75,8 @@ export async function checkArbitrage(
     return [false, null, null];
   }
 
-  const firstProtocols = resultData1.protocols;
-  const returnAmount = resultData1.toTokenAmount;
+  const firstProtocols = resultData1.data.protocols;
+  const returnAmount = resultData1.data.toTokenAmount;
   const secondCallURL = get1inchQuoteCallUrl(
     chainId,
     toToken.address,
@@ -99,32 +89,18 @@ export async function checkArbitrage(
   });
 
   const resultData2 = await sendRequest(secondCallURL);
-  if (!!resultData2.isAxiosError) {
-    const e = resultData2;
 
+  if (!resultData1.data) {
     updateRow(
       {
-        fromToken: resultData1.fromToken.symbol.padEnd(6),
+        fromToken: fromToken.symbol.padEnd(6),
         toToken: toToken.symbol.padEnd(6),
 
-        fromAmount: Number(
-          ethers.utils.formatUnits(
-            resultData1.fromTokenAmount,
-            resultData1.fromToken.decimals
-          )
-        )
+        fromAmount: Number(ethers.utils.formatUnits(amount, fromTokenDecimal))
           .toFixed(2)
           .padStart(7),
 
-        log:
-          e.response !== undefined
-            ? e.response.status +
-              ": " +
-              e.response.statusText +
-              " (" +
-              e.response.data.error +
-              ")"
-            : "",
+        log: `${resultData1.errorMessage}`,
       },
       {
         color: "red",
@@ -133,22 +109,34 @@ export async function checkArbitrage(
 
     return [false, null, null];
   }
-  const secondProtocols = resultData2.protocols;
+  if (!resultData2.data) {
+    updateRow(
+      {
+        log: resultData2.errorMessage,
+      },
+      {
+        color: "red",
+      }
+    );
+
+    return [false, null, null];
+  }
+  const secondProtocols = resultData2.data.protocols;
 
   const isProfitable = amountDiff.lt(
-    ethers.BigNumber.from(resultData2.toTokenAmount)
+    ethers.BigNumber.from(resultData2.data.toTokenAmount)
   );
 
   const fromTokenAmount = Number(
     ethers.utils.formatUnits(
-      resultData1.fromTokenAmount,
-      resultData1.fromToken.decimals
+      resultData1.data.fromTokenAmount,
+      resultData1.data.fromToken.decimals
     )
   );
   const toTokenAmount = Number(
     ethers.utils.formatUnits(
-      resultData2.toTokenAmount,
-      resultData2.toToken.decimals
+      resultData2.data.toTokenAmount,
+      resultData2.data.toToken.decimals
     )
   );
   const difference = Number(toTokenAmount) - Number(fromTokenAmount);
@@ -156,8 +144,8 @@ export async function checkArbitrage(
 
   updateRow(
     {
-      fromToken: resultData1.fromToken.symbol.padEnd(6),
-      toToken: resultData1.toToken.symbol.padEnd(6),
+      fromToken: resultData1.data.fromToken.symbol.padEnd(6),
+      toToken: resultData1.data.toToken.symbol.padEnd(6),
 
       fromAmount: fromTokenAmount.toFixed(2).padStart(7),
       toAmount: toTokenAmount.toFixed(2).padStart(7),
