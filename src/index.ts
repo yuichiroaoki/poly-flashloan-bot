@@ -9,13 +9,14 @@ import {
   loanAmount,
   diffAmount,
 } from "./config";
-import { createRoutes, flashloan } from "./flashloan";
+import { flashloan } from "./flashloan";
 import { expectAmountOut } from "./expect";
 import { getBigNumber } from "./utils";
 import { ethers } from "ethers";
 import { chalkDifference, chalkPercentage, chalkTime } from "./utils/chalk";
 import { flashloanTable, priceTable } from "./consoleUI/table";
 import { initPriceTable, renderTables } from "./consoleUI";
+import { createRoutes } from "./price/1inch/route";
 
 export const main = async () => {
   console.clear();
@@ -106,40 +107,58 @@ export const main = async () => {
 
                 const startTime = Date.now();
 
-                const tx = await flashloan(
-                  baseToken,
-                  firstRoutes,
-                  secondRoutes
-                );
+                try {
+                  const tx = await flashloan(
+                    baseToken,
+                    firstRoutes,
+                    secondRoutes
+                  );
 
-                pp.addRow({
-                  baseToken: baseToken.symbol.padEnd(6),
-                  tradingToken: tradingToken.symbol.padEnd(6),
+                  pp.addRow({
+                    baseToken: baseToken.symbol.padEnd(6),
+                    tradingToken: tradingToken.symbol.padEnd(6),
 
-                  amount: (amount || "").padStart(7),
-                  difference: (chalkDifference(difference) || "").padStart(6),
-                  percentage: (chalkPercentage(percentage) || "").padStart(4),
+                    amount: (amount || "").padStart(7),
+                    difference: (chalkDifference(difference) || "").padStart(6),
+                    percentage: (chalkPercentage(percentage) || "").padStart(4),
 
-                  firstRoutes: firstProtocols.map((routes) =>
-                    routes.map((hops) =>
-                      hops
-                        .map((swap) => swap.name.replace("POLYGON_", ""))
-                        .join(" → ")
-                    )
-                  ),
-                  secondRoutes: secondProtocols.map((routes) =>
-                    routes.map((hops) =>
-                      hops
-                        .map((swap) => swap.name.replace("POLYGON_", ""))
-                        .join(" → ")
-                    )
-                  ),
+                    firstRoutes: firstProtocols.map((routes) =>
+                      routes.map((hops) =>
+                        hops
+                          .map((swap) => swap.name.replace("POLYGON_", ""))
+                          .join(" → ")
+                      )
+                    ),
+                    secondRoutes: secondProtocols.map((routes) =>
+                      routes.map((hops) =>
+                        hops
+                          .map((swap) => swap.name.replace("POLYGON_", ""))
+                          .join(" → ")
+                      )
+                    ),
 
-                  txHash: tx.hash.padStart(66),
+                    txHash: tx.hash.padStart(66),
 
-                  time: chalkTime((Date.now() - startTime) / 1000).padStart(6),
-                  timestamp: new Date().toISOString(),
-                });
+                    time: chalkTime((Date.now() - startTime) / 1000).padStart(
+                      6
+                    ),
+                    timestamp: new Date().toISOString(),
+                  });
+                } catch (e) {
+                  updateRow(
+                    {
+                      fromToken: baseToken.symbol.padEnd(6),
+                      toToken: tradingToken.symbol.padEnd(6),
+
+                      fromAmount: loanAmount.toFixed(2).padStart(7),
+
+                      log: e.message,
+                    },
+                    {
+                      color: "red",
+                    }
+                  );
+                }
 
                 isFlashLoaning = false;
 
