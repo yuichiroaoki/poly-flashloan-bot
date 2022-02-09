@@ -31,7 +31,12 @@ export const findRouter = (router: string) => {
   return "UNKNOWN";
 };
 
-export const findToken = (token: string) => {
+/**
+ *
+ * @param token address
+ * @returns token symbol
+ */
+export const findToken = (token: string): string => {
   for (let k of Object.keys(ERC20Token)) {
     if (token.toLowerCase() === ERC20Token[k].address.toLowerCase()) {
       return k;
