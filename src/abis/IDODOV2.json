@@ -1,0 +1,95 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "IDODOV2",
+  "sourceName": "contracts/dodo/IDODOV2.sol",
+  "abi": [
+    {
+      "inputs": [],
+      "name": "_BASE_TOKEN_",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "_QUOTE_TOKEN_",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "trader",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "payBaseAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "querySellBase",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "receiveQuoteAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "mtFee",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "trader",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "payQuoteAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "querySellQuote",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "receiveBaseAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "mtFee",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}
