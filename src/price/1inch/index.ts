@@ -89,29 +89,21 @@ export async function checkArbitrage(
   });
 
   const resultData2 = await sendRequest(secondCallURL);
-
-  if (!resultData1.data) {
-    updateRow(
-      {
-        fromToken: fromToken.symbol.padEnd(6),
-        toToken: toToken.symbol.padEnd(6),
-
-        fromAmount: Number(ethers.utils.formatUnits(amount, fromTokenDecimal))
-          .toFixed(2)
-          .padStart(7),
-
-        log: `${resultData1.errorMessage}`,
-      },
-      {
-        color: "red",
-      }
-    );
-
-    return [false, null, null];
-  }
   if (!resultData2.data) {
     updateRow(
       {
+        fromToken: resultData1.data.fromToken.symbol.padEnd(6),
+        toToken: toToken.symbol.padEnd(6),
+
+        fromAmount: Number(
+          ethers.utils.formatUnits(
+            resultData1.data.fromTokenAmount,
+            resultData1.data.fromToken.decimals
+          )
+        )
+          .toFixed(2)
+          .padStart(7),
+
         log: resultData2.errorMessage,
       },
       {
