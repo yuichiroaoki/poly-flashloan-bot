@@ -76,13 +76,19 @@ export const main = async () => {
               const secondRoutes = createRoutes(secondProtocols);
 
               const bnLoanAmount = getBigNumber(loanAmount, baseToken.decimals);
-              // estimate the token amount you get atfer swaps
-              const bnExpectedAmountOut = await expectAmountOut(
-                firstRoutes,
-                bnLoanAmount
-              ).then((firstAmountOut) =>
-                expectAmountOut(secondRoutes, firstAmountOut)
-              );
+              let bnExpectedAmountOut = getBigNumber(0);
+              // double check the price by qeurying dex contracts
+              try {
+                bnExpectedAmountOut = await expectAmountOut(
+                  firstRoutes,
+                  bnLoanAmount
+                ).then((firstAmountOut) =>
+                  expectAmountOut(secondRoutes, firstAmountOut)
+                );
+              } catch (e) {
+                // skip flashloan when failed to estimate price
+                return;
+              }
               // check if the expected amount is larger than the loan amount
               const isOpportunity = bnLoanAmount
                 .add(getBigNumber(diffAmount, baseToken.decimals))
@@ -144,25 +150,12 @@ export const main = async () => {
                     ),
                     timestamp: new Date().toISOString(),
                   });
+
+                  renderTables(p, pp);
                 } catch (e) {
-                  updateRow(
-                    {
-                      fromToken: baseToken.symbol.padEnd(6),
-                      toToken: tradingToken.symbol.padEnd(6),
-
-                      fromAmount: loanAmount.toFixed(2).padStart(7),
-
-                      log: e.message,
-                    },
-                    {
-                      color: "red",
-                    }
-                  );
+                } finally {
+                  isFlashLoaning = false;
                 }
-
-                isFlashLoaning = false;
-
-                renderTables(p, pp);
               }
             }
           }
