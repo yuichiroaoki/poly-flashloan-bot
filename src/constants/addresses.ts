@@ -93,6 +93,22 @@ export const ERC20Token: erc20Token = {
     logoURI:
       "https://tokens.1inch.io/0x7ceb23fd6bc0add59e62ac25578270cff1b9f619.png",
   },
+  UNI: {
+    symbol: "UNI",
+    name: "Uniswap",
+    decimals: 18,
+    address: "0xb33eaad8d922b1083446dc23f610c2567fb5180f",
+    logoURI:
+      "https://tokens.1inch.io/0x1f9840a85d5af5bf1d1762f925bdaddc4201f984.png",
+  },
+  AAVE: {
+    symbol: "AAVE",
+    name: "Aave",
+    decimals: 18,
+    address: "0xd6df932a45c0f255f85145f286ea0b292b21c90b",
+    logoURI:
+      "https://tokens.1inch.io/0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9.png",
+  },
   CRV: {
     symbol: "CRV",
     name: "CRV",
