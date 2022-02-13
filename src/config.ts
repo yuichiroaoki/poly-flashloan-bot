@@ -14,7 +14,12 @@ export const chainId = 137; // Polygon
 
 export const explorerURL = "https://polygonscan.com";
 
-// Token pair the bot trading
+/**
+ * Token pair the bot trading
+ * baseToken -> tradingToken -> baseToken (ex: DAI -> WETH -> DAI)
+ * profits are sent in baseToken if a transaction is successful.
+ */
+
 export const baseTokens = [
   ERC20Token.DAI,
   // ERC20Token.WETH,
@@ -39,6 +44,10 @@ export const tradingTokens = [
 export const flashloanAddress: string =
   "0x33d8d437796bd43bdccc6740c585f4a15d1070b7";
 
+/**
+ * The bot can trade on UniswapV2 fork dexes(ex. SushiSwap) and UniswapV3
+ * For UniswapV2, you can trade between any token pair, but for UniswapV3, you have to check their pool fees and list them on src/price/uniswap/v3/fee.ts.
+ */
 // protocols the bot will use
 export const protocols =
   "POLYGON_SUSHISWAP,POLYGON_QUICKSWAP,POLYGON_APESWAP,POLYGON_JETSWAP,POLYGON_WAULTSWAP,POLYGON_UNISWAP_V3";

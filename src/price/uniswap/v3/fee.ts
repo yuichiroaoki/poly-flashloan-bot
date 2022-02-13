@@ -6,6 +6,12 @@ type FeeMap = {
   };
 };
 
+/**
+ * ref. https://info.uniswap.org/#/polygon/
+ * Solidity does not support float values, so pool fees are multiplied by 10^4
+ * 0.05% -> 500
+ * 0.3% -> 3000
+ */
 export const uniswapV3Fee: FeeMap = {
   DAI: {
     USDC: 500,
