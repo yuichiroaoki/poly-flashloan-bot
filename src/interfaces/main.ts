@@ -8,6 +8,7 @@ export interface IRoute {
 export interface Swap {
   protocol: number;
   part: number;
+  data: string;
 }
 
 export interface Hop {

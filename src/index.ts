@@ -9,13 +9,14 @@ import {
   loanAmount,
   diffAmount,
 } from "./config";
-import { createRoutes, flashloan } from "./flashloan";
+import { flashloan } from "./flashloan";
 import { expectAmountOut } from "./expect";
 import { getBigNumber } from "./utils";
 import { ethers } from "ethers";
 import { chalkDifference, chalkPercentage, chalkTime } from "./utils/chalk";
 import { flashloanTable, priceTable } from "./consoleUI/table";
 import { initPriceTable, renderTables } from "./consoleUI";
+import { createRoutes } from "./price/1inch/route";
 
 export const main = async () => {
   console.clear();
@@ -75,13 +76,19 @@ export const main = async () => {
               const secondRoutes = createRoutes(secondProtocols);
 
               const bnLoanAmount = getBigNumber(loanAmount, baseToken.decimals);
-              // estimate the token amount you get atfer swaps
-              const bnExpectedAmountOut = await expectAmountOut(
-                firstRoutes,
-                bnLoanAmount
-              ).then((firstAmountOut) =>
-                expectAmountOut(secondRoutes, firstAmountOut)
-              );
+              let bnExpectedAmountOut = getBigNumber(0);
+              // double check the price by qeurying dex contracts
+              try {
+                bnExpectedAmountOut = await expectAmountOut(
+                  firstRoutes,
+                  bnLoanAmount
+                ).then((firstAmountOut) =>
+                  expectAmountOut(secondRoutes, firstAmountOut)
+                );
+              } catch (e) {
+                // skip flashloan when failed to estimate price
+                return;
+              }
               // check if the expected amount is larger than the loan amount
               const isOpportunity = bnLoanAmount
                 .add(getBigNumber(diffAmount, baseToken.decimals))
@@ -106,44 +113,49 @@ export const main = async () => {
 
                 const startTime = Date.now();
 
-                const tx = await flashloan(
-                  baseToken,
-                  firstRoutes,
-                  secondRoutes
-                );
+                try {
+                  const tx = await flashloan(
+                    baseToken,
+                    firstRoutes,
+                    secondRoutes
+                  );
 
-                pp.addRow({
-                  baseToken: baseToken.symbol.padEnd(6),
-                  tradingToken: tradingToken.symbol.padEnd(6),
+                  pp.addRow({
+                    baseToken: baseToken.symbol.padEnd(6),
+                    tradingToken: tradingToken.symbol.padEnd(6),
 
-                  amount: (amount || "").padStart(7),
-                  difference: (chalkDifference(difference) || "").padStart(6),
-                  percentage: (chalkPercentage(percentage) || "").padStart(4),
+                    amount: (amount || "").padStart(7),
+                    difference: (chalkDifference(difference) || "").padStart(6),
+                    percentage: (chalkPercentage(percentage) || "").padStart(4),
 
-                  firstRoutes: firstProtocols.map((routes) =>
-                    routes.map((hops) =>
-                      hops
-                        .map((swap) => swap.name.replace("POLYGON_", ""))
-                        .join(" → ")
-                    )
-                  ),
-                  secondRoutes: secondProtocols.map((routes) =>
-                    routes.map((hops) =>
-                      hops
-                        .map((swap) => swap.name.replace("POLYGON_", ""))
-                        .join(" → ")
-                    )
-                  ),
+                    firstRoutes: firstProtocols.map((routes) =>
+                      routes.map((hops) =>
+                        hops
+                          .map((swap) => swap.name.replace("POLYGON_", ""))
+                          .join(" → ")
+                      )
+                    ),
+                    secondRoutes: secondProtocols.map((routes) =>
+                      routes.map((hops) =>
+                        hops
+                          .map((swap) => swap.name.replace("POLYGON_", ""))
+                          .join(" → ")
+                      )
+                    ),
 
-                  txHash: tx.hash.padStart(66),
+                    txHash: tx.hash.padStart(66),
 
-                  time: chalkTime((Date.now() - startTime) / 1000).padStart(6),
-                  timestamp: new Date().toISOString(),
-                });
+                    time: chalkTime((Date.now() - startTime) / 1000).padStart(
+                      6
+                    ),
+                    timestamp: new Date().toISOString(),
+                  });
 
-                isFlashLoaning = false;
-
-                renderTables(p, pp);
+                  renderTables(p, pp);
+                } catch (e) {
+                } finally {
+                  isFlashLoaning = false;
+                }
               }
             }
           }

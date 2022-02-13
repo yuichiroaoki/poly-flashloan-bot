@@ -15,6 +15,14 @@ const quoterContract = new ethers.Contract(
   maticProvider
 );
 
+/**
+ *
+ * @param tokenIn address of token to convert from
+ * @param tokenOut address of token to convert to
+ * @param amountIn amount of token to convert from
+ * @param fee pool fee
+ * @returns
+ */
 export const getPriceOnUniV3 = async (
   tokenIn: string,
   tokenOut: string,

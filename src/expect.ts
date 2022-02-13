@@ -62,7 +62,7 @@ export const expectPriceOnDex = async (
     return getBigNumber(0);
   }
   if (protocol === 0) {
-    const fee = getUniswapV3PoolFee([tokenIn, tokenOut])[0];
+    const fee = getUniswapV3PoolFee([tokenIn, tokenOut]);
     return await getPriceOnUniV3(tokenIn, tokenOut, amountIn, fee);
   } else {
     const routerAddress = findRouterFromProtocol(protocol);

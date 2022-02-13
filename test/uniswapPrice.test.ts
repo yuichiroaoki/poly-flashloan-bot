@@ -9,6 +9,9 @@ describe("Uniswap price check", () => {
   for (let i = 0; i < Object.keys(uniswapRouter).length; i++) {
     const routerAddress = findRouterFromProtocol(i);
     const routerName = findRouter(routerAddress);
+    // skip jetswap
+    if (i === 4) continue;
+
     describe(routerName, () => {
       baseTokens.forEach(async (baseToken) => {
         tradingTokens.forEach(async (tradingToken) => {
