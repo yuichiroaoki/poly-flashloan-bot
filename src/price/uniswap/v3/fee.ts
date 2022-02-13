@@ -6,24 +6,30 @@ type FeeMap = {
   };
 };
 
-const uniswapV3Fee: FeeMap = {
+export const uniswapV3Fee: FeeMap = {
   DAI: {
     USDC: 500,
     USDT: 500,
     WETH: 3000,
     WMATIC: 500,
+    WBTC: 3000,
   },
   USDC: {
     DAI: 500, // https://info.uniswap.org/#/polygon/pools/0x5f69c2ec01c22843f8273838d570243fd1963014
     USDT: 500,
     WETH: 500,
     WMATIC: 500,
+    WBTC: 3000,
   },
   USDT: {
     DAI: 500, // https://info.uniswap.org/#/polygon/pools/0x42f0530351471dab7ec968476d19bd36af9ec52d
     USDC: 500, // https://info.uniswap.org/#/polygon/pools/0x3f5228d0e7d75467366be7de2c31d0d098ba2c23
     WETH: 3000,
     WMATIC: 500,
+  },
+  WBTC: {
+    WMATIC: 500,
+    WETH: 500,
   },
   WETH: {
     DAI: 3000, // https://info.uniswap.org/#/polygon/pools/0x6bad0f9a89ca403bb91d253d385cec1a2b6eca97
@@ -40,10 +46,13 @@ const uniswapV3Fee: FeeMap = {
 };
 
 export const getUniswapV3PoolFee = (tokenAddresses: string[]): number => {
-  let feeArray = [];
-  const tokens = tokenAddresses.map(findToken);
+  const tokens = tokenAddresses.map(findToken).sort();
   try {
-    return uniswapV3Fee[tokens[0]][tokens[1]];
+    const fee = uniswapV3Fee[tokens[0]][tokens[1]];
+    if (!fee) {
+      throw new Error("No fee found");
+    }
+    return fee;
   } catch (error) {
     // set default as 0.3%
     return 3000;
