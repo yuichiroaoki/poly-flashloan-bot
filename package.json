@@ -36,7 +36,7 @@
     "ts-node": "latest",
     "typescript": "latest"
   },
-  "packageManager": "yarn@3.0.2",
+  "packageManager": "yarn@3.2.0",
   "lint-staged": {
     "*.{js,json,md,sol,ts}": [
       "prettier --config .prettierrc.json --write --ignore-unknown"
