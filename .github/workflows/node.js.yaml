@@ -40,4 +40,4 @@ jobs:
         run: |
           source startup.sh
         env:
-          SAMPLE_PRIVATE_KEY: ${{ secrets.SAMPLE_PRIVATE_KEY }}
+          PRIVATE_KEY: ${{ secrets.SAMPLE_PRIVATE_KEY }}
