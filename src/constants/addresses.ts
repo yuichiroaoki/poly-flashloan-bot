@@ -130,12 +130,9 @@ export const ERC20Token: erc20Token = {
 type PoolMap = { [pair: string]: string };
 
 export const dodoV2Pool: PoolMap = {
-  USDC_DAI: "0xaaE10Fa31E73287687ce56eC90f81A800361B898",
-  USDT_DAI: "0xDa43a4aAB20D313Ab3AA07d8E09f3521F32a3D83",
   WETH_USDC: "0x5333Eb1E32522F1893B7C9feA3c263807A02d561",
   WMATIC_USDC: "0x10Dd6d8A29D489BEDE472CC1b22dc695c144c5c7",
   USDT_USDC: "0xA0020444b98f67B77a3d6dE6E66aF11c87da086e",
-  WBTC_USDC: "0xe020008465cD72301A18b97d33D73bF44858A4b7",
 };
 
 type RouterMap = { [protocol: string]: string };

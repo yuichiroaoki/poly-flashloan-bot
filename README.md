@@ -67,6 +67,8 @@ yarn start
 
 Edit [src/config.ts](https://github.com/yuichiroaoki/poly-flashloan-bot/blob/main/src/config.ts)
 
+[Optimal Bot Configuration](https://github.com/yuichiroaoki/poly-flashloan-bot/wiki/Optimal-Bot-Configuration)
+
 If you have deployed your own contract, replace `flashloan address` to your deployed smart contract address.
 
 ```typescript
