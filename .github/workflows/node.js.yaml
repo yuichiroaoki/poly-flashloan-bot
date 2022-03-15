@@ -30,14 +30,3 @@ jobs:
       - run: yarn test
         env:
           ALCHEMY_POLYGON_RPC_URL: ${{ secrets.ALCHEMY_POLYGON_RPC_URL }}
-
-  docker:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v2
-      - name: Docker Build
-        run: |
-          source startup.sh
-        env:
-          PRIVATE_KEY: ${{ secrets.SAMPLE_PRIVATE_KEY }}
