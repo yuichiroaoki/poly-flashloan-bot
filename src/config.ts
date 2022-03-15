@@ -21,7 +21,7 @@ export const explorerURL = "https://polygonscan.com";
  */
 
 export const baseTokens = [
-  ERC20Token.DAI,
+  // ERC20Token.DAI,
   // ERC20Token.WETH,
   ERC20Token.USDC,
   ERC20Token.USDT,
