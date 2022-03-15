@@ -40,4 +40,4 @@ jobs:
         run: |
           source startup.sh
         env:
-          ALCHEMY_POLYGON_RPC_URL: ${{ secrets.SAMPLE_PRIVATE_KEY }}
+          SAMPLE_PRIVATE_KEY: ${{ secrets.SAMPLE_PRIVATE_KEY }}
