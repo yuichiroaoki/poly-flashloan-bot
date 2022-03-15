@@ -24,10 +24,8 @@ const Flashloan = new ethers.Contract(
 type testedPoolMap = { [erc20Address: string]: string[] };
 
 const testedPools: testedPoolMap = {
-  DAI: [dodoV2Pool.USDC_DAI],
   WETH: [dodoV2Pool.WETH_USDC],
-  USDC: [dodoV2Pool.WETH_USDC, dodoV2Pool.USDC_DAI],
-  USDT: [dodoV2Pool.USDT_DAI],
+  USDC: [dodoV2Pool.WETH_USDC],
   WMATIC: [dodoV2Pool.WMATIC_USDC],
 };
 

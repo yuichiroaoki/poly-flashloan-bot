@@ -20,15 +20,9 @@ describe("DODO pool check", () => {
     for (const [name, poolAddr] of Object.entries(dodoV2Pool)) {
       test(name, async () => {
         const dodoPool = new ethers.Contract(poolAddr, DodoPool.abi, provider);
-        if (poolAddr !== dodoV2Pool.WBTC_USDC) {
-          expect(
-            (await dodoPool._BASE_RESERVE_()).gt(getBigNumber(10000, 6))
-          ).toBe(true);
-        } else {
-          expect((await dodoPool._BASE_RESERVE_()).gt(getBigNumber(1, 8))).toBe(
-            true
-          );
-        }
+        expect(
+          (await dodoPool._BASE_RESERVE_()).gt(getBigNumber(10000, 6))
+        ).toBe(true);
         expect(
           (await dodoPool._QUOTE_RESERVE_()).gt(getBigNumber(10000, 6))
         ).toBe(true);
