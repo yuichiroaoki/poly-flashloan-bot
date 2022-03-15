@@ -4,6 +4,8 @@ test
 Dockerfile
 .dockerignore
 dist
+.husky
+.vscode
 
 .yarn/*
 !.yarn/patches
