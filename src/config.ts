@@ -3,9 +3,9 @@ import { ERC20Token } from "./constants/addresses";
 export const renderInterval = 1 * 1000;
 
 // interval of price check (ms)
-export const interval = 10 * 1000;
+export const interval = 4 * 1000;
 
-export const loanAmount = 1000;
+export const loanAmount = 10000;
 export const diffAmount = 10; // Not enough amount to return loan
 
 //export const chainId = 1;// Ethereum
@@ -53,7 +53,7 @@ export const protocols =
   "POLYGON_SUSHISWAP,POLYGON_QUICKSWAP,POLYGON_APESWAP,POLYGON_JETSWAP,POLYGON_WAULTSWAP,POLYGON_UNISWAP_V3";
 
 export const gasLimit = 15000000;
-export const gasPrice = 30; // gwei
+export const gasPrice = 100; // gwei
 
 export const routeParts = [
   [10000],
