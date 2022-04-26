@@ -16,3 +16,4 @@ dist
 .pnp.*
 
 yarn.lock
+log

@@ -33,6 +33,7 @@
     "console-table-printer": "latest",
     "dotenv": "latest",
     "ethers": "^5.5.3",
+    "log4js": "^6.4.6",
     "ts-node": "latest",
     "typescript": "latest"
   },

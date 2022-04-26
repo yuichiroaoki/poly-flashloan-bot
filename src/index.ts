@@ -8,6 +8,9 @@ import {
   renderInterval,
   loanAmount,
   diffAmount,
+  explorerURL,
+  gasLimit,
+  gasPrice,
 } from "./config";
 import { flashloan } from "./flashloan";
 import { expectAmountOut } from "./expect";
@@ -17,6 +20,21 @@ import { chalkDifference, chalkPercentage, chalkTime } from "./utils/chalk";
 import { flashloanTable, priceTable } from "./consoleUI/table";
 import { initPriceTable, renderTables } from "./consoleUI";
 import { createRoutes } from "./price/1inch/route";
+import * as log4js from "log4js";
+
+log4js.configure({
+  appenders: {
+    flashloan: { type: "file", filename: "log/flashloan.log" },
+    error: { type: "file", filename: "log/error.log" },
+  },
+  categories: {
+    default: { appenders: ["flashloan"], level: "info" },
+    error: { appenders: ["error"], level: "warn" },
+  },
+});
+
+const logger = log4js.getLogger("flashloan");
+const errReport = log4js.getLogger("error");
 
 export const main = async () => {
   console.clear();
@@ -87,6 +105,9 @@ export const main = async () => {
                 );
               } catch (e) {
                 // skip flashloan when failed to estimate price
+                errReport.warn(e);
+                errReport.warn(1, JSON.stringify(firstProtocols));
+                errReport.warn(2, JSON.stringify(secondProtocols));
                 return;
               }
               // check if the expected amount is larger than the loan amount
@@ -150,9 +171,18 @@ export const main = async () => {
                     ),
                     timestamp: new Date().toISOString(),
                   });
-
                   renderTables(p, pp);
+                  logger.info("flashloan executed", tx.hash);
+                  logger.info(`Explorer URL: ${explorerURL}/tx/${tx.hash}`);
                 } catch (e) {
+                  errReport.error(e);
+                  errReport.error({
+                    gasLimit,
+                    gasPrice,
+                    loanAmount,
+                    baseToken,
+                    tradingToken,
+                  });
                 } finally {
                   isFlashLoaning = false;
                 }
@@ -173,5 +203,6 @@ export const main = async () => {
 
 main().catch((error) => {
   console.error(error);
+  errReport.error(error);
   process.exit(1);
 });
