@@ -2,6 +2,7 @@ import { BigNumber, ethers } from "ethers";
 import { abi as QuoterABI } from "@uniswap/v3-periphery/artifacts/contracts/lens/Quoter.sol/Quoter.json";
 import { config as dotEnvConfig } from "dotenv";
 import { getBigNumber } from "../../../utils";
+import { getUniswapV3PoolFee } from "./fee";
 dotEnvConfig();
 
 const maticProvider = new ethers.providers.JsonRpcProvider(
@@ -20,15 +21,14 @@ const quoterContract = new ethers.Contract(
  * @param tokenIn address of token to convert from
  * @param tokenOut address of token to convert to
  * @param amountIn amount of token to convert from
- * @param fee pool fee
  * @returns
  */
 export const getPriceOnUniV3 = async (
   tokenIn: string,
   tokenOut: string,
-  amountIn: BigNumber,
-  fee: number
+  amountIn: BigNumber
 ): Promise<BigNumber> => {
+  const fee = getUniswapV3PoolFee([tokenIn, tokenOut]);
   const quotedAmountOut = await quoterContract.callStatic.quoteExactInputSingle(
     tokenIn,
     tokenOut,

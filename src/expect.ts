@@ -57,13 +57,12 @@ export const expectPriceOnDex = async (
   amountIn: BigNumber,
   tokenIn: string,
   tokenOut: string
-) => {
+): Promise<BigNumber> => {
   if (!amountIn || amountIn.eq(getBigNumber(0))) {
     return getBigNumber(0);
   }
   if (protocol === 0) {
-    const fee = getUniswapV3PoolFee([tokenIn, tokenOut]);
-    return await getPriceOnUniV3(tokenIn, tokenOut, amountIn, fee);
+    return await getPriceOnUniV3(tokenIn, tokenOut, amountIn);
   } else {
     const routerAddress = findRouterFromProtocol(protocol);
     return await getPriceOnUniV2(tokenIn, tokenOut, amountIn, routerAddress);
