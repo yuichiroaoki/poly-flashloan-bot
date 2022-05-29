@@ -5,14 +5,9 @@ export interface IRoute {
   toTokenAddress: string;
 }
 
-export interface Swap {
-  protocol: number;
-  part: number;
-  data: string;
-}
-
 export interface Hop {
-  swaps: Swap[];
+  protocol: number;
+  data: string;
   path: string[];
 }
 
@@ -24,6 +19,5 @@ export interface IFlashloanRoute {
 export interface IParams {
   flashLoanPool: string;
   loanAmount: BigNumber;
-  firstRoutes: IFlashloanRoute[];
-  secondRoutes: IFlashloanRoute[];
+  routes: IFlashloanRoute[];
 }
