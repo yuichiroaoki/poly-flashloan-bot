@@ -1,16 +1,15 @@
 import chalk = require("chalk");
-import { diffAmount } from "../config";
 
-export const chalkDifference = (difference: number) => {
-  const fixedDiff = difference.toFixed(1);
-  if (difference < 0) {
-    return chalk.red(fixedDiff);
-  } else if (difference < diffAmount) {
-    return chalk.yellow(fixedDiff);
-  } else {
-    return chalk.green(fixedDiff);
-  }
-};
+// export const chalkDifference = (difference: number) => {
+//   const fixedDiff = difference.toFixed(1);
+//   if (difference < 0) {
+//     return chalk.red(fixedDiff);
+//   } else if (difference < diffAmount) {
+//     return chalk.yellow(fixedDiff);
+//   } else {
+//     return chalk.green(fixedDiff);
+//   }
+// };
 
 export const chalkPercentage = (percentage: number) => {
   const fixedDiff = percentage.toFixed(1);

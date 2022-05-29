@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { dodoV2Pool, ERC20Token, uniswapRouter } from "../constants/addresses";
 
 export const getBigNumber = (amount: number, decimals = 18) => {
@@ -60,4 +60,17 @@ export const findPool = (pool: string) => {
  */
 export const findRouterFromProtocol = (protocol: number) => {
   return uniswapRouter[Object.keys(uniswapRouter)[protocol]];
+};
+
+export const checkIfProfitable = (
+  loanAmount: BigNumber,
+  diffPercentage: number,
+  expectedAmountOut: BigNumber
+) => {
+  const preventUnderflow = 1_000_000;
+  const isOpportunity = loanAmount
+    .mul((diffPercentage / 100 + 1) * preventUnderflow)
+    .div(preventUnderflow)
+    .lt(expectedAmountOut);
+  return isOpportunity;
 };

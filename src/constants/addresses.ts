@@ -132,7 +132,6 @@ type PoolMap = { [pair: string]: string };
 export const dodoV2Pool: PoolMap = {
   WETH_USDC: "0x5333Eb1E32522F1893B7C9feA3c263807A02d561",
   WMATIC_USDC: "0x10Dd6d8A29D489BEDE472CC1b22dc695c144c5c7",
-  USDT_USDC: "0xA0020444b98f67B77a3d6dE6E66aF11c87da086e",
 };
 
 type RouterMap = { [protocol: string]: string };

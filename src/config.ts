@@ -1,12 +1,13 @@
 import { ERC20Token } from "./constants/addresses";
+import { ITrade } from "./interfaces/trade";
+import { getBigNumber } from "./utils";
 
 export const renderInterval = 1 * 1000;
 
 // interval of price check (ms)
 export const interval = 4 * 1000;
 
-export const loanAmount = 10000;
-export const diffAmount = 10; // Not enough amount to return loan
+export const diffPercentage = 0.03;
 
 //export const chainId = 1;// Ethereum
 //export const chainId = 56;// Binance Smart Chain
@@ -14,26 +15,12 @@ export const chainId = 137; // Polygon
 
 export const explorerURL = "https://polygonscan.com";
 
-/**
- * Token pair the bot trading
- * baseToken -> tradingToken -> baseToken (ex: DAI -> WETH -> DAI)
- * profits are sent in baseToken if a transaction is successful.
- */
-
-export const baseTokens = [
-  // ERC20Token.DAI,
-  // ERC20Token.WETH,
-  ERC20Token.USDC,
-  ERC20Token.USDT,
-  // ERC20Token.WMATIC,
-];
-
-export const tradingTokens = [
-  ERC20Token.DAI,
-  ERC20Token.WETH,
-  ERC20Token.USDC,
-  ERC20Token.USDT,
-  ERC20Token.WMATIC,
+export const tradingRoutes: ITrade[] = [
+  {
+    path: [ERC20Token.USDC, ERC20Token.DAI, ERC20Token.USDC],
+    protocols: [2, 0],
+    amountIn: getBigNumber(20000, ERC20Token.USDC.decimals),
+  },
 ];
 
 /**
@@ -48,18 +35,5 @@ export const flashloanAddress: string =
  * The bot can trade on UniswapV2 fork dexes(ex. SushiSwap) and UniswapV3
  * For UniswapV2, you can trade between any token pair, but for UniswapV3, you have to check their pool fees and list them on src/price/uniswap/v3/fee.ts.
  */
-// protocols the bot will use
-export const protocols =
-  "POLYGON_SUSHISWAP,POLYGON_QUICKSWAP,POLYGON_APESWAP,POLYGON_JETSWAP,POLYGON_WAULTSWAP,POLYGON_UNISWAP_V3";
 
 export const gasLimit = 15000000;
-export const gasPrice = 100; // gwei
-
-export const routeParts = [
-  [10000],
-  [8000, 2000],
-  [5000, 4000, 1000],
-  [5000, 3000, 1000, 1000],
-  [3000, 2000, 2000, 2000, 1000],
-  [2000, 2000, 2000, 2000, 1000, 1000],
-];
