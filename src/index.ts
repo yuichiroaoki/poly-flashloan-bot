@@ -11,9 +11,9 @@ import {
 import { flashloan } from "./flashloan";
 import { checkIfProfitable, getBigNumber } from "./utils";
 import { ethers } from "ethers";
-import { chalkDifference, chalkPercentage, chalkTime } from "./utils/chalk";
+// import { chalkDifference, chalkPercentage, chalkTime } from "./utils/chalk";
 import { flashloanTable, priceTable } from "./consoleUI/table";
-import { initPriceTable, renderTables } from "./consoleUI";
+// import { initPriceTable, renderTables } from "./consoleUI";
 import * as log4js from "log4js";
 import { findOpp } from "./findOpp";
 
