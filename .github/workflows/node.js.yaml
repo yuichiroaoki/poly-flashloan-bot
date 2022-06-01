@@ -7,9 +7,6 @@ on:
       - "test/**"
   pull_request:
     branches: [ main ]
-    paths:
-      - "src/**"
-      - "test/**"
 
 jobs:
   build:
