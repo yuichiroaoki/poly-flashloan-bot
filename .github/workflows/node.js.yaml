@@ -7,9 +7,6 @@ on:
       - "test/**"
   pull_request:
     branches: [ main ]
-    paths:
-      - "src/**"
-      - "test/**"
 
 jobs:
   build:
@@ -30,3 +27,13 @@ jobs:
       - run: yarn test
         env:
           ALCHEMY_POLYGON_RPC_URL: ${{ secrets.ALCHEMY_POLYGON_RPC_URL }}
+
+  docker:
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Docker Build
+        run: | 
+          docker build .
