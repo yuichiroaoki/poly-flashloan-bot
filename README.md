@@ -23,8 +23,8 @@ You need to deploy your own smart contract on polygon mainnet if you want to run
 Run the following command.
 
 ```bash
-https://github.com/yuichiroaoki/poly-flashloan-bot.git
-cd poly-flashloan-bot
+$ git clone https://github.com/yuichiroaoki/poly-flashloan-bot.git
+$ cd poly-flashloan-bot
 ```
 
 ## Quickstart
